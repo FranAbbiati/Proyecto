@@ -1,0 +1,333 @@
+/* =========================
+   CONFIGURACIÓN GENERAL
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family: Arial, sans-serif;
+
+    background: linear-gradient(
+        135deg,
+        #0f1c27,
+        #172d3d
+    );
+
+    color: #ffffff;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px;
+}
+
+
+/* =========================
+   CONTENEDOR
+========================= */
+
+.contenedor {
+    width: 100%;
+    max-width: 600px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+}
+
+
+/* =========================
+   TÍTULO
+========================= */
+
+.bienvenida {
+    text-align: center;
+
+    margin-bottom: 35px;
+}
+
+.bienvenida h1 {
+    font-size: 42px;
+
+    margin-bottom: 12px;
+
+    letter-spacing: -1px;
+}
+
+.bienvenida p {
+    font-size: 17px;
+
+    line-height: 1.5;
+
+    color: #b8c8d3;
+}
+
+
+/* =========================
+   TARJETA DE REGISTRO
+========================= */
+
+.registro {
+    width: 100%;
+
+    padding: 45px;
+
+    background: #182733;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.registro h2 {
+    text-align: center;
+
+    font-size: 27px;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================
+   MENSAJE DE ERROR FLASK
+========================= */
+
+.mensaje-error {
+
+    width: 100%;
+
+    margin-bottom: 20px;
+
+    padding: 12px 15px;
+
+    border-radius: 9px;
+
+    background: rgba(220, 53, 69, 0.12);
+
+    border: 1px solid #dc3545;
+
+    color: #ff6b78;
+
+    font-size: 14px;
+
+    text-align: center;
+}
+
+
+/* =========================
+   CAMPOS
+========================= */
+
+.campo {
+    display: flex;
+
+    flex-direction: column;
+
+    margin-bottom: 20px;
+}
+
+.campo label {
+    font-size: 14px;
+
+    color: #d4e0e7;
+
+    margin-bottom: 8px;
+}
+
+.campo input {
+    width: 100%;
+
+    height: 48px;
+
+    padding: 0 15px;
+
+    border: 1px solid #3b4e5b;
+
+    border-radius: 9px;
+
+    background: #101b24;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition: 0.2s;
+}
+
+.campo input::placeholder {
+    color: #71808b;
+}
+
+.campo input:focus {
+    border-color: #4da3d9;
+
+    box-shadow:
+        0 0 0 3px rgba(77, 163, 217, 0.12);
+}
+
+
+/* =========================
+   CAMPOS CON ERROR
+========================= */
+
+.campo input.campo-error {
+
+    border-color: #dc3545;
+
+    box-shadow:
+        0 0 0 3px rgba(220, 53, 69, 0.12);
+}
+
+.campo input.campo-error:focus {
+
+    border-color: #ff4d5d;
+
+    box-shadow:
+        0 0 0 3px rgba(220, 53, 69, 0.18);
+}
+
+
+/* =========================
+   ERROR DE CONTRASEÑAS
+========================= */
+
+.error-contrasena {
+
+    display: none;
+
+    margin-top: -8px;
+
+    margin-bottom: 15px;
+
+    color: #ff6b78;
+
+    font-size: 13px;
+}
+
+.error-contrasena.mostrar-error {
+
+    display: block;
+}
+
+
+/* =========================
+   BOTÓN CREAR CUENTA
+========================= */
+
+button {
+    width: 100%;
+
+    height: 48px;
+
+    margin-top: 5px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #3d9bd1;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+button:hover {
+    background: #3188bb;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(61, 155, 209, 0.25);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================
+   VOLVER AL LOGIN
+========================= */
+
+.volver {
+    margin-top: 25px;
+
+    padding-top: 22px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+    text-align: center;
+}
+
+.volver p {
+    font-size: 14px;
+
+    color: #8799a5;
+
+    margin-bottom: 8px;
+}
+
+.volver a {
+    color: #55b6ed;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    text-decoration: none;
+
+    transition: 0.2s;
+}
+
+.volver a:hover {
+    color: #ffffff;
+
+    text-decoration: underline;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 20px;
+    }
+
+    .bienvenida h1 {
+        font-size: 34px;
+    }
+
+    .bienvenida p {
+        font-size: 15px;
+    }
+
+    .registro {
+        padding: 30px 25px;
+    }
+}

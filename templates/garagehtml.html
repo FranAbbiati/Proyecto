@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garage Control</title>
+  <link rel="stylesheet" href="garagecss.css">
+</head>
+
+<body>
+
+  <div class="container">
+
+    <header>
+      <div class="logo">
+        <div class="logo-icon" style="background: #2563eb;">🚗</div>
+        <div>
+          <h1>Garage Control</h1>
+          <small style="color:#94a3b8;">Panel de control remoto</small>
+        </div>
+      </div>
+
+      <div class="connection">
+        <span class="dot" id="connectionDot"></span>
+        <span id="connectionText">Verificando...</span>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- CONTROL PRINCIPAL -->
+      <div class="card garage-card" style="text-align: center;">
+        <div class="garage-icon" id="garageIcon" style="font-size: 90px; margin: 15px 0;">🚪</div>
+        <div class="status" id="garageStatus" style="font-size: 28px; font-weight: bold; margin-bottom: 8px;">Cerrado</div>
+        <div class="substatus" id="garageSubstatus" style="color: #94a3b8; margin-bottom: 25px;">El portón está asegurado</div>
+
+        <button class="main-button" id="garageButton" onclick="toggleGarage()" style="background: #2563eb;">
+          ABRIR PORTÓN
+        </button>
+
+        <div class="controls">
+          <button class="control-button" id="lightButton" onclick="toggleLight()">💡 Luz</button>
+          <button class="control-button" id="alarmButton" onclick="toggleAlarm()">🔔 Alarma</button>
+          <button class="control-button" onclick="refreshStatus()">🔄 Actualizar</button>
+          <button class="control-button" onclick="lockGarage()">🔒 Bloquear</button>
+        </div>
+      </div>
+
+      <!-- INFORMACIÓN -->
+      <div>
+        <div class="card">
+          <h2>Estado del sistema</h2>
+          <div class="info">
+            <div class="info-box"><small>Humedad</small><strong id="humidityVal">--%</strong></div>
+            <div class="info-box"><small>Señal Wi-Fi</small><strong>Excelente</strong></div>
+            <div class="info-box"><small>Temperatura</small><strong id="tempVal">-- °C</strong></div>
+            <div class="info-box"><small>Última actualización</small><strong id="lastUpdate">Ahora</strong></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <h2>📹 Cámara del garage</h2>
+          <div class="camera">
+            <div class="camera-label">CAMERA 01</div>
+            <div class="recording">● LIVE</div>
+            <span>Vista de cámara</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="card history">
+      <h2>Actividad reciente</h2>
+      <div id="history">
+        <div class="event">
+          <span>📡 Sistema iniciado</span>
+          <span class="event-time">Ahora</span>
+        </div>
+      </div>
+    </div>
+
+    <footer>Garage Control · Sistema de control remoto</footer>
+
+  </div>
+
+  <script src="garagejs.js"></script>
+</body>
+</html>

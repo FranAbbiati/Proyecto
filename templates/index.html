@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Centro de Automatización</title>
+
+     <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='index.css') }}"
+    >
+</head>
+
+<body>
+
+    <header class="encabezado">
+
+        <div class="logo">
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+        </div>
+
+        <div class="usuario">
+            <span>{{ usuario }}</span>
+
+            <a href="../templates/registrohtml.html">
+                Cerrar sesión
+            </a>
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="bienvenida">
+
+            <h2>
+                Bienvenido, {{ usuario }}
+            </h2>
+
+            <p>
+                Administrá tus entornos y controlá todo
+                desde un solo lugar.
+            </p>
+
+        </section>
+
+
+        <section class="entornos">
+
+            <div class="titulo">
+
+                <h3>
+                    Mis entornos
+                </h3>
+
+                <span>
+                    0 entornos
+                </span>
+
+            </div>
+
+
+            <div class="contenedor-entornos">
+
+                <div class="sin-entornos">
+
+                    <div class="icono">
+                        +
+                    </div>
+
+                    <h4>
+                        Todavía no tenés ningún entorno
+                    </h4>
+
+                    <p>
+                        Creá tu primer entorno y
+                        personalizalo según tus necesidades.
+                    </p>
+
+                    <a href="/crear-entorno" class="boton">
+                        Crear mi entorno
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            ● Sistema conectado
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

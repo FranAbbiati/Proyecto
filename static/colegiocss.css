@@ -1,0 +1,249 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.container {
+  width: min(1100px, 94%);
+  margin: auto;
+  padding: 30px 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #16a34a;
+  font-size: 25px;
+}
+
+.logo h1 {
+  font-size: 22px;
+}
+
+.connection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e293b;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+
+.school-card {
+  text-align: center;
+}
+
+.school-icon {
+  font-size: 90px;
+  margin: 15px 0;
+}
+
+.status {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.substatus {
+  color: #94a3b8;
+  margin-bottom: 25px;
+}
+
+.main-button {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 18px;
+  font-size: 19px;
+  font-weight: bold;
+  color: white;
+  background: #16a34a;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.main-button:hover {
+  background: #15803d;
+  transform: translateY(-2px);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.control-button {
+  border: none;
+  padding: 15px;
+  border-radius: 12px;
+  background: #334155;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+  transition: .2s;
+}
+
+.control-button:hover {
+  background: #475569;
+}
+
+.control-button.active {
+  background: #f59e0b;
+  color: #111827;
+}
+
+.camera {
+  height: 220px;
+  border-radius: 12px;
+  background:
+    linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.5)),
+    linear-gradient(135deg, #475569, #111827);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+.camera span {
+  color: #cbd5e1;
+  font-size: 16px;
+}
+
+.camera-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,.6);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.recording {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #ef4444;
+  font-size: 12px;
+}
+
+h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.info-box {
+  background: #0f172a;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.info-box small {
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.info-box strong {
+  font-size: 17px;
+}
+
+.history {
+  margin-top: 20px;
+}
+
+.event {
+  display: flex;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid #334155;
+  font-size: 14px;
+}
+
+.event:last-child {
+  border-bottom: none;
+}
+
+.event-time {
+  color: #94a3b8;
+}
+
+footer {
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 25px;
+}
+
+@media (max-width: 750px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  header {
+    align-items: flex-start;
+    gap: 15px;
+    flex-direction: column;
+  }
+
+  .school-icon {
+    font-size: 70px;
+  }
+}

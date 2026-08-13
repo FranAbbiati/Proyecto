@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Crear entorno</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='crear_entorno.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         ENCABEZADO
+    ========================== -->
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('index') }}">
+                Volver
+            </a>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =========================
+         CONTENIDO
+    ========================== -->
+
+    <main>
+
+
+        <section class="introduccion">
+
+            <span class="etiqueta">
+                NUEVO ENTORNO
+            </span>
+
+            <h2>
+                ¿Qué entorno querés crear?
+            </h2>
+
+            <p>
+                Elegí el tipo de entorno que querés
+                administrar y después vamos a
+                configurarlo según tus necesidades.
+            </p>
+
+        </section>
+
+
+
+        <!-- =========================
+             OPCIONES
+        ========================== -->
+
+        <section class="entornos">
+
+
+            <button class="entorno">
+
+                <div class="icono">
+                    🏠
+                </div>
+
+                <div class="informacion">
+
+                    <h3>
+                        Casa
+                    </h3>
+
+                    <p>
+                        Habitaciones, iluminación,
+                        temperatura y seguridad.
+                    </p>
+
+                </div>
+
+            </button>
+
+
+
+            <button class="entorno">
+
+                <div class="icono">
+                    🏫
+                </div>
+
+                <div class="informacion">
+
+                    <h3>
+                        Colegio
+                    </h3>
+
+                    <p>
+                        Aulas, sectores, iluminación
+                        y condiciones ambientales.
+                    </p>
+
+                </div>
+
+            </button>
+
+
+
+            <button class="entorno">
+
+                <div class="icono">
+                    🏢
+                </div>
+
+                <div class="informacion">
+
+                    <h3>
+                        Oficina
+                    </h3>
+
+                    <p>
+                        Espacios de trabajo,
+                        iluminación y climatización.
+                    </p>
+
+                </div>
+
+            </button>
+
+
+
+            <button class="entorno">
+
+                <div class="icono">
+                    🚗
+                </div>
+
+                <div class="informacion">
+
+                    <h3>
+                        Garage
+                    </h3>
+
+                    <p>
+                        Portones, iluminación,
+                        movimiento y seguridad.
+                    </p>
+
+                </div>
+
+            </button>
+        </section>
+
+
+    </main>
+
+
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            ● Sistema conectado
+        </span>
+
+    </footer>
+
+
+</body>
+
+</html>

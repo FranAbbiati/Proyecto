@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Centro de Automatización</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='registro.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+    <main class="contenedor">
+
+
+        <!-- =========================
+             BIENVENIDA
+        ========================== -->
+
+        <section class="bienvenida">
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+            <p>
+                Controlá y personalizá tus entornos
+                desde un solo lugar.
+            </p>
+
+        </section>
+
+
+        <!-- =========================
+             INICIAR SESIÓN
+        ========================== -->
+
+        <section class="acceso">
+
+            <h2>
+                Iniciar sesión
+            </h2>
+
+
+            <!-- =========================
+                 MENSAJE DE ERROR
+            ========================== -->
+
+            <form
+                action="{{ url_for('login') }}"
+                method="POST"
+            >
+
+
+                <!-- =========================
+                     USUARIO
+                ========================== -->
+
+                <div class="campo">
+
+                    <label for="usuario">
+                        Usuario
+                    </label>
+
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        placeholder="Ingresá tu usuario"
+                        value="{{ usuario or '' }}"
+
+                        {% if error_campo == "usuario" %}
+                            class="campo-error"
+                        {% endif %}
+
+                        required
+                        autocomplete="username"
+                    >
+                    {% if error_campo == "usuario" %}
+
+                        <div class="mensaje-error">
+                            {{ error }}
+                        </div>
+
+                    {% endif %}
+                </div>
+
+
+                <!-- =========================
+                     CONTRASEÑA
+                ========================== -->
+
+                <div class="campo">
+
+                    <label for="contrasena">
+                        Contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        id="contrasena"
+                        name="contrasena"
+                        placeholder="Ingresá tu contraseña"
+
+                        {% if error_campo == "contrasena" %}
+                            class="campo-error"
+                        {% endif %}
+
+                        required
+                        autocomplete="current-password"
+                    >
+                    {% if error_campo == "contrasena" %}
+
+                        <div class="mensaje-error">
+                            {{ error }}
+                        </div>
+
+                    {% endif %}
+                </div>
+
+
+                <!-- =========================
+                     BOTÓN
+                ========================== -->
+
+                <button type="submit">
+                    Iniciar sesión
+                </button>
+
+
+            </form>
+
+
+            <!-- =========================
+                 CREAR CUENTA
+            ========================== -->
+
+            <div class="registro">
+
+                <p>
+                    ¿Todavía no tenés una cuenta?
+                </p>
+
+                <a href="{{ url_for('registro') }}">
+                    Crear una cuenta
+                </a>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+</body>
+
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Crear cuenta - Centro de Automatización</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='registroSesion.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+    <main class="contenedor">
+
+
+        <!-- =========================
+             TÍTULO
+        ========================== -->
+
+        <section class="bienvenida">
+
+            <h1>
+                Crear una cuenta
+            </h1>
+
+            <p>
+                Configurá tu centro de automatización
+                y adaptalo a tus entornos.
+            </p>
+
+        </section>
+
+
+        <!-- =========================
+             FORMULARIO
+        ========================== -->
+
+        <section class="registro">
+
+            <h2>
+                Registrarse
+            </h2>
+
+
+            <!-- =========================
+                 MENSAJE DE ERROR FLASK
+            ========================== -->
+
+            {% if error %}
+
+                <div class="mensaje-error">
+                    {{ error }}
+                </div>
+
+            {% endif %}
+
+
+            <form
+                action="{{ url_for('registro') }}"
+                method="POST"
+                id="formRegistro"
+            >
+
+
+                <!-- =========================
+                     USUARIO
+                ========================== -->
+
+                <div class="campo">
+
+                    <label for="usuario">
+                        Nombre de usuario
+                    </label>
+
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        placeholder="Ingresá tu nombre de usuario"
+                        value="{{ usuario or '' }}"
+
+                        {% if error_campo == "usuario" %}
+                            class="campo-error"
+                        {% endif %}
+
+                        required
+                        autocomplete="username"
+                    >
+
+                </div>
+
+
+                <!-- =========================
+                     CONTRASEÑA
+                ========================== -->
+
+                <div class="campo">
+
+                    <label for="contrasena">
+                        Contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        id="contrasena"
+                        name="contrasena"
+                        placeholder="Ingresá una contraseña"
+
+                        {% if error_campo == "contrasenas" %}
+                            class="campo-error"
+                        {% endif %}
+
+                        required
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+
+                <!-- =========================
+                     REPETIR CONTRASEÑA
+                ========================== -->
+
+                <div class="campo">
+
+                    <label for="confirmar_contrasena">
+                        Repetir contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmar_contrasena"
+                        name="confirmar_contrasena"
+                        placeholder="Repetí tu contraseña"
+
+                        {% if error_campo == "contrasenas" %}
+                            class="campo-error"
+                        {% endif %}
+
+                        required
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+
+                <!-- =========================
+                     MENSAJE JAVASCRIPT
+                ========================== -->
+
+                <p
+                    id="errorContrasena"
+                    class="error-contrasena"
+                >
+                    Las contraseñas no coinciden.
+                </p>
+
+
+                <!-- =========================
+                     BOTÓN
+                ========================== -->
+
+                <button type="submit">
+                    Crear cuenta
+                </button>
+
+            </form>
+
+
+            <!-- =========================
+                 VOLVER AL LOGIN
+            ========================== -->
+
+            <div class="volver">
+
+                <p>
+                    ¿Ya tenés una cuenta?
+                </p>
+
+                <a href="{{ url_for('iniciar_sesion') }}">
+                    Iniciar sesión
+                </a>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script
+        src="{{ url_for('static', filename='javascript/registroSesion.js') }}"
+    ></script>
+
+</body>
+
+</html>
