@@ -2,15 +2,21 @@
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Centro de Automatización</title>
 
-     <link
+    <link
         rel="stylesheet"
         href="{{ url_for('static', filename='index.css') }}"
     >
+
 </head>
 
 <body>
@@ -18,19 +24,26 @@
     <header class="encabezado">
 
         <div class="logo">
+
             <span class="logo-punto"></span>
 
             <h1>
                 Centro de Automatización
             </h1>
+
         </div>
 
-        <div class="usuario">
-            <span>{{ usuario }}</span>
 
-            <a href="../templates/registrohtml.html">
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('logout') }}">
                 Cerrar sesión
             </a>
+
         </div>
 
     </header>
@@ -61,7 +74,12 @@
                 </h3>
 
                 <span>
-                    0 entornos
+                    {{ entornos|length }}
+                    {% if entornos|length == 1 %}
+                        entorno
+                    {% else %}
+                        entornos
+                    {% endif %}
                 </span>
 
             </div>
@@ -69,26 +87,151 @@
 
             <div class="contenedor-entornos">
 
-                <div class="sin-entornos">
+
+                <!-- =====================================
+                     ENTORNOS GUARDADOS
+                ====================================== -->
+
+                {% for entorno in entornos %}
+
+                    <div class="entorno-card">
+
+                        <div class="entorno-icono">
+
+                            {% if entorno["tipo"] == "colegio" %}
+
+                                🏫
+
+                            {% elif entorno["tipo"] == "casa" %}
+
+                                🏠
+
+                            {% elif entorno["tipo"] == "oficina" %}
+
+                                🏢
+
+                            {% elif entorno["tipo"] == "garage" %}
+
+                                🚗
+
+                            {% else %}
+
+                                🌐
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="entorno-info">
+
+                            <h4>
+                                {{ entorno["nombre"] }}
+                            </h4>
+
+                            <p>
+                                {% if entorno["tipo"] == "colegio" %}
+
+                                    Colegio
+
+                                {% elif entorno["tipo"] == "casa" %}
+
+                                    Casa
+
+                                {% elif entorno["tipo"] == "oficina" %}
+
+                                    Oficina
+
+                                {% elif entorno["tipo"] == "garage" %}
+
+                                    Garage
+
+                                {% else %}
+
+                                    {{ entorno["tipo"] }}
+
+                                {% endif %}
+                            </p>
+
+                        </div>
+
+
+                        <div class="entorno-accion">
+
+                            {% if entorno["tipo"] == "colegio" %}
+
+                                <a
+                                    href="{{ url_for('colegio') }}"
+                                    class="boton"
+                                >
+                                    Abrir
+                                </a>
+
+                            {% elif entorno["tipo"] == "casa" %}
+
+                                <a
+                                    href="{{ url_for('casa') }}"
+                                    class="boton"
+                                >
+                                    Abrir
+                                </a>
+
+                            {% elif entorno["tipo"] == "oficina" %}
+
+                                <a
+                                    href="{{ url_for('oficina') }}"
+                                    class="boton"
+                                >
+                                    Abrir
+                                </a>
+
+                            {% elif entorno["tipo"] == "garage" %}
+
+                                <a
+                                    href="{{ url_for('garage') }}"
+                                    class="boton"
+                                >
+                                    Abrir
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+
+
+                <!-- =====================================
+                     CREAR NUEVO ENTORNO
+                ====================================== -->
+
+                <div class="crear-entorno-card">
 
                     <div class="icono">
                         +
                     </div>
 
                     <h4>
-                        Todavía no tenés ningún entorno
+                        Crear nuevo entorno
                     </h4>
 
                     <p>
-                        Creá tu primer entorno y
+                        Agregá otro entorno y
                         personalizalo según tus necesidades.
                     </p>
 
-                    <a href="/crear-entorno" class="boton">
-                        Crear mi entorno
+                    <a
+                        href="{{ url_for('crear_entorno') }}"
+                        class="boton"
+                    >
+                        Crear entorno
                     </a>
 
                 </div>
+
 
             </div>
 

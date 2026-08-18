@@ -5,7 +5,10 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Crear entorno</title>
 
@@ -19,10 +22,6 @@
 
 <body>
 
-
-    <!-- =========================
-         ENCABEZADO
-    ========================== -->
 
     <header class="encabezado">
 
@@ -53,10 +52,6 @@
 
 
 
-    <!-- =========================
-         CONTENIDO
-    ========================== -->
-
     <main>
 
 
@@ -80,14 +75,10 @@
 
 
 
-        <!-- =========================
-             OPCIONES
-        ========================== -->
-
         <section class="entornos">
 
-
-            <button class="entorno">
+            <!-- CASA -->
+            <a href="{{ url_for('casa') }}" class="entorno">
 
                 <div class="icono">
                     🏠
@@ -106,11 +97,11 @@
 
                 </div>
 
-            </button>
+            </a>
 
 
-
-            <button class="entorno">
+            <!-- COLEGIO -->
+            <a href="{{ url_for('colegio') }}" class="entorno">
 
                 <div class="icono">
                     🏫
@@ -129,11 +120,11 @@
 
                 </div>
 
-            </button>
+            </a>
 
 
-
-            <button class="entorno">
+            <!-- OFICINA -->
+            <a href="{{ url_for('oficina') }}" class="entorno">
 
                 <div class="icono">
                     🏢
@@ -152,11 +143,11 @@
 
                 </div>
 
-            </button>
+            </a>
 
 
-
-            <button class="entorno">
+            <!-- GARAGE -->
+            <a href="{{ url_for('garage') }}" class="entorno">
 
                 <div class="icono">
                     🚗
@@ -175,9 +166,9 @@
 
                 </div>
 
-            </button>
-        </section>
+            </a>
 
+        </section>
 
     </main>
 
@@ -190,7 +181,7 @@
         </span>
 
         <span class="estado">
-            ● Sistema conectado
+            Sistema conectado
         </span>
 
     </footer>

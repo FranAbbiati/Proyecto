@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{{ entorno["nombre"] }}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='colegiocss.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+
+            <div class="logo">
+
+                <div class="logo-icon">
+                    🏫
+                </div>
+
+                <div>
+
+                    <h1>
+                        {{ entorno["nombre"] }}
+                    </h1>
+
+                    <small>
+                        Centro de Automatización
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="connection">
+
+                <span class="dot"></span>
+
+                Sistema conectado
+
+            </div>
+
+        </header>
+
+
+        <div class="grid">
+
+            <div>
+
+                <div class="card">
+
+                    <h2>
+                        Espacios del colegio
+                    </h2>
+
+
+                    {% for espacio in espacios %}
+
+                        <div class="info-box">
+
+                            <small>
+                                {{ espacio["tipo"]|replace("_", " ")|title }}
+                            </small>
+
+                            <strong>
+                                {{ espacio["nombre"] }}
+                            </strong>
+
+
+                            {% if espacio["dispositivos"] %}
+
+                                <div class="controls">
+
+                                    {% for dispositivo in espacio["dispositivos"] %}
+
+                                        <button
+                                            class="control-button"
+                                        >
+                                            {% if dispositivo["tipo"] == "iluminacion" %}
+                                                💡 Iluminación
+                                            {% elif dispositivo["tipo"] == "temperatura" %}
+                                                🌡️ Temperatura
+                                            {% elif dispositivo["tipo"] == "humedad" %}
+                                                💧 Humedad
+                                            {% elif dispositivo["tipo"] == "movimiento" %}
+                                                👤 Movimiento
+                                            {% elif dispositivo["tipo"] == "alarma" %}
+                                                🚨 Alarma
+                                            {% elif dispositivo["tipo"] == "ventilacion" %}
+                                                🌀 Ventilación
+                                            {% else %}
+                                                {{ dispositivo["tipo"] }}
+                                            {% endif %}
+                                        </button>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            {% else %}
+
+                                <p>
+                                    Este espacio no tiene
+                                    dispositivos configurados.
+                                </p>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="card">
+
+                    <h2>
+                        Información
+                    </h2>
+
+                    <div class="info">
+
+                        <div class="info-box">
+
+                            <small>
+                                Usuario
+                            </small>
+
+                            <strong>
+                                {{ usuario }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <small>
+                                Espacios
+                            </small>
+
+                            <strong>
+                                {{ espacios|length }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <footer>
+
+            Centro de Automatización
+
+        </footer>
+
+    </div>
+
+</body>
+
+</html>

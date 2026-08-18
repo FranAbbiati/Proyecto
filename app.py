@@ -5,7 +5,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# Clave para las sesiones
+# ==========================================
+# CONFIGURACIÓN
+# ==========================================
+
 app.secret_key = "clave-secreta-del-proyecto"
 
 
@@ -26,11 +29,63 @@ def crear_base_datos():
 
     conexion = conectar_db()
 
+    # ==========================================
+    # USUARIOS
+    # ==========================================
+
     conexion.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT UNIQUE NOT NULL,
             contraseña TEXT NOT NULL
+        )
+    """)
+
+    # ==========================================
+    # ENTORNOS
+    # ==========================================
+
+    conexion.execute("""
+        CREATE TABLE IF NOT EXISTS entornos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            nombre TEXT NOT NULL,
+            tipo TEXT NOT NULL,
+
+            FOREIGN KEY (usuario_id)
+            REFERENCES usuarios(id)
+        )
+    """)
+
+    # ==========================================
+    # ESPACIOS
+    # ==========================================
+
+    conexion.execute("""
+        CREATE TABLE IF NOT EXISTS espacios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            entorno_id INTEGER NOT NULL,
+            nombre TEXT NOT NULL,
+            tipo TEXT NOT NULL,
+
+            FOREIGN KEY (entorno_id)
+            REFERENCES entornos(id)
+        )
+    """)
+
+    # ==========================================
+    # DISPOSITIVOS
+    # ==========================================
+
+    conexion.execute("""
+        CREATE TABLE IF NOT EXISTS dispositivos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            espacio_id INTEGER NOT NULL,
+            tipo TEXT NOT NULL,
+            estado TEXT NOT NULL DEFAULT 'apagado',
+
+            FOREIGN KEY (espacio_id)
+            REFERENCES espacios(id)
         )
     """)
 
@@ -40,13 +95,188 @@ def crear_base_datos():
 
 
 # ==========================================
-# INICIAR SESIÓN
+# FUNCIONES DE ENTORNOS
+# ==========================================
+
+def crear_entorno_db(usuario_id, nombre, tipo):
+
+    conexion = conectar_db()
+
+    cursor = conexion.execute(
+        """
+        INSERT INTO entornos (
+            usuario_id,
+            nombre,
+            tipo
+        )
+        VALUES (?, ?, ?)
+        """,
+        (
+            usuario_id,
+            nombre,
+            tipo
+        )
+    )
+
+    entorno_id = cursor.lastrowid
+
+    conexion.commit()
+
+    conexion.close()
+
+    return entorno_id
+
+
+# ==========================================
+# OBTENER ENTORNO DE UN USUARIO
+# ==========================================
+
+def obtener_entorno(usuario_id, tipo):
+
+    conexion = conectar_db()
+
+    entorno = conexion.execute(
+        """
+        SELECT *
+        FROM entornos
+        WHERE usuario_id = ?
+        AND tipo = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (
+            usuario_id,
+            tipo
+        )
+    ).fetchone()
+
+    conexion.close()
+
+    return entorno
+
+
+# ==========================================
+# CREAR ESPACIO
+# ==========================================
+
+def crear_espacio_db(entorno_id, nombre, tipo):
+
+    conexion = conectar_db()
+
+    cursor = conexion.execute(
+        """
+        INSERT INTO espacios (
+            entorno_id,
+            nombre,
+            tipo
+        )
+        VALUES (?, ?, ?)
+        """,
+        (
+            entorno_id,
+            nombre,
+            tipo
+        )
+    )
+
+    espacio_id = cursor.lastrowid
+
+    conexion.commit()
+
+    conexion.close()
+
+    return espacio_id
+
+
+# ==========================================
+# CREAR DISPOSITIVO
+# ==========================================
+
+def crear_dispositivo_db(
+    espacio_id,
+    tipo,
+    estado="apagado"
+):
+
+    conexion = conectar_db()
+
+    conexion.execute(
+        """
+        INSERT INTO dispositivos (
+            espacio_id,
+            tipo,
+            estado
+        )
+        VALUES (?, ?, ?)
+        """,
+        (
+            espacio_id,
+            tipo,
+            estado
+        )
+    )
+
+    conexion.commit()
+
+    conexion.close()
+
+
+# ==========================================
+# OBTENER ESPACIOS DE UN ENTORNO
+# ==========================================
+
+def obtener_espacios(entorno_id):
+
+    conexion = conectar_db()
+
+    espacios = conexion.execute(
+        """
+        SELECT *
+        FROM espacios
+        WHERE entorno_id = ?
+        ORDER BY id
+        """,
+        (entorno_id,)
+    ).fetchall()
+
+    conexion.close()
+
+    return espacios
+
+
+# ==========================================
+# OBTENER DISPOSITIVOS DE UN ESPACIO
+# ==========================================
+
+def obtener_dispositivos(espacio_id):
+
+    conexion = conectar_db()
+
+    dispositivos = conexion.execute(
+        """
+        SELECT *
+        FROM dispositivos
+        WHERE espacio_id = ?
+        ORDER BY id
+        """,
+        (espacio_id,)
+    ).fetchall()
+
+    conexion.close()
+
+    return dispositivos
+
+
+# ==========================================
+# INICIO DE SESIÓN
 # ==========================================
 
 @app.route("/")
 def iniciar_sesion():
 
-    return render_template("registrohtml.html")
+    return render_template(
+        "registrohtml.html"
+    )
 
 
 # ==========================================
@@ -59,27 +289,39 @@ def registro():
     if request.method == "POST":
 
         usuario = request.form["usuario"]
+
         contraseña = request.form["contrasena"]
-        confirmar = request.form["confirmar_contrasena"]
 
+        confirmar = request.form[
+            "confirmar_contrasena"
+        ]
 
-        # Comprobar contraseñas
+        # --------------------------------------
+        # COMPROBAR CONTRASEÑAS
+        # --------------------------------------
 
         if contraseña != confirmar:
 
             return "Las contraseñas no coinciden."
 
+        # --------------------------------------
+        # CONECTAR BASE DE DATOS
+        # --------------------------------------
 
         conexion = conectar_db()
 
-
-        # Comprobar si ya existe
+        # --------------------------------------
+        # COMPROBAR USUARIO EXISTENTE
+        # --------------------------------------
 
         usuario_existente = conexion.execute(
-            "SELECT * FROM usuarios WHERE nombre = ?",
+            """
+            SELECT *
+            FROM usuarios
+            WHERE nombre = ?
+            """,
             (usuario,)
         ).fetchone()
-
 
         if usuario_existente:
 
@@ -87,42 +329,49 @@ def registro():
 
             return "Ese nombre de usuario ya existe."
 
-
-        # Encriptar contraseña
+        # --------------------------------------
+        # ENCRIPTAR CONTRASEÑA
+        # --------------------------------------
 
         contraseña_hash = generate_password_hash(
             contraseña
         )
 
-
-        # Guardar usuario
+        # --------------------------------------
+        # GUARDAR USUARIO
+        # --------------------------------------
 
         conexion.execute(
             """
-            INSERT INTO usuarios (nombre, contraseña)
+            INSERT INTO usuarios (
+                nombre,
+                contraseña
+            )
             VALUES (?, ?)
             """,
-            (usuario, contraseña_hash)
+            (
+                usuario,
+                contraseña_hash
+            )
         )
 
         conexion.commit()
 
         conexion.close()
 
+        # --------------------------------------
+        # VOLVER AL LOGIN
+        # --------------------------------------
 
-        # Volver al inicio de sesión
+        return redirect(
+            url_for("iniciar_sesion")
+        )
 
-        return redirect(url_for("iniciar_sesion"))
+    return render_template(
+        "registroSesionhtml.html"
+    )
 
 
-    return render_template("registroSesionhtml.html")
-
-
-# ==========================================
-# PROCESAR LOGIN
-# ==========================================
-
-@app.route("/login", methods=["POST"])
 # ==========================================
 # PROCESAR LOGIN
 # ==========================================
@@ -131,22 +380,25 @@ def registro():
 def login():
 
     usuario = request.form["usuario"]
-    contraseña = request.form["contrasena"]
 
+    contraseña = request.form["contrasena"]
 
     conexion = conectar_db()
 
-
     datos_usuario = conexion.execute(
-        "SELECT * FROM usuarios WHERE nombre = ?",
+        """
+        SELECT *
+        FROM usuarios
+        WHERE nombre = ?
+        """,
         (usuario,)
     ).fetchone()
 
-
     conexion.close()
 
-
-    # Usuario inexistente
+    # --------------------------------------
+    # USUARIO INEXISTENTE
+    # --------------------------------------
 
     if datos_usuario is None:
 
@@ -157,8 +409,9 @@ def login():
             usuario=usuario
         )
 
-
-    # Comprobar contraseña
+    # --------------------------------------
+    # CONTRASEÑA INCORRECTA
+    # --------------------------------------
 
     if not check_password_hash(
         datos_usuario["contraseña"],
@@ -172,17 +425,22 @@ def login():
             usuario=usuario
         )
 
-
-    # Guardar sesión
+    # --------------------------------------
+    # GUARDAR SESIÓN
+    # --------------------------------------
 
     session["usuario_id"] = datos_usuario["id"]
 
     session["usuario"] = datos_usuario["nombre"]
 
+    # --------------------------------------
+    # IR AL CENTRO
+    # --------------------------------------
 
-    # Ir a la página principal
+    return redirect(
+        url_for("index")
+    )
 
-    return redirect(url_for("index"))
 
 # ==========================================
 # PÁGINA PRINCIPAL
@@ -191,16 +449,30 @@ def login():
 @app.route("/index")
 def index():
 
-    # Comprobar si hay una sesión activa
-
     if "usuario_id" not in session:
 
-        return redirect(url_for("iniciar_sesion"))
+        return redirect(
+            url_for("iniciar_sesion")
+        )
 
+    conexion = conectar_db()
+
+    entornos = conexion.execute(
+        """
+        SELECT *
+        FROM entornos
+        WHERE usuario_id = ?
+        ORDER BY id DESC
+        """,
+        (session["usuario_id"],)
+    ).fetchall()
+
+    conexion.close()
 
     return render_template(
         "index.html",
-        usuario=session["usuario"]
+        usuario=session["usuario"],
+        entornos=entornos
     )
 
 # ==========================================
@@ -211,9 +483,746 @@ def index():
 def crear_entorno():
 
     if "usuario_id" not in session:
-        return redirect(url_for("iniciar_sesion"))
 
-    return render_template("crear_entorno.html")
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    return render_template(
+        "crear_entorno.html",
+        usuario=session["usuario"]
+    )
+
+
+# ==========================================
+# CASA
+# ==========================================
+
+@app.route("/casa")
+def casa():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    # Buscar si el usuario ya tiene una casa guardada
+
+    entorno = obtener_entorno(
+        session["usuario_id"],
+        "casa"
+    )
+
+    # ==========================================
+    # SI YA EXISTE
+    # ==========================================
+
+    if entorno:
+
+        espacios = obtener_espacios(
+            entorno["id"]
+        )
+
+        espacios_completos = []
+
+        for espacio in espacios:
+
+            dispositivos = obtener_dispositivos(
+                espacio["id"]
+            )
+
+            espacios_completos.append({
+
+                "id": espacio["id"],
+
+                "nombre": espacio["nombre"],
+
+                "tipo": espacio["tipo"],
+
+                "dispositivos": dispositivos
+
+            })
+
+        return render_template(
+            "entorno.html",
+            usuario=session["usuario"],
+            entorno=entorno,
+            nombre_entorno=entorno["nombre"],
+            espacios=espacios_completos,
+            habitaciones=espacios_completos
+        )
+
+    # ==========================================
+    # SI TODAVÍA NO EXISTE
+    # ==========================================
+
+    return render_template(
+        "casa.html",
+        usuario=session["usuario"]
+    )
+
+# ==========================================
+# CONFIGURAR HABITACIONES DE CASA
+# ==========================================
+
+@app.route(
+    "/casa/habitaciones",
+    methods=["POST"]
+)
+def configurar_habitaciones():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    nombre_entorno = request.form.get(
+        "nombre_entorno"
+    )
+
+    cantidad_habitaciones = request.form.get(
+        "cantidad_habitaciones"
+    )
+
+    if (
+        not nombre_entorno
+        or not cantidad_habitaciones
+    ):
+
+        return redirect(
+            url_for("casa")
+        )
+
+    cantidad_habitaciones = int(
+        cantidad_habitaciones
+    )
+
+    return render_template(
+        "configurar_habitaciones.html",
+        usuario=session["usuario"],
+        nombre_entorno=nombre_entorno,
+        cantidad_habitaciones=cantidad_habitaciones
+    )
+
+
+# ==========================================
+# CONFIGURAR DISPOSITIVOS DE CASA
+# ==========================================
+
+@app.route(
+    "/casa/dispositivos",
+    methods=["POST"]
+)
+def configurar_dispositivos():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    nombre_entorno = request.form.get(
+        "nombre_entorno"
+    )
+
+    cantidad_habitaciones = int(
+        request.form.get(
+            "cantidad_habitaciones",
+            0
+        )
+    )
+
+    habitaciones = []
+
+    for numero in range(
+        1,
+        cantidad_habitaciones + 1
+    ):
+
+        nombre_habitacion = request.form.get(
+            f"habitacion{numero}"
+        )
+
+        habitaciones.append(
+            nombre_habitacion
+        )
+
+    return render_template(
+        "configurar_dispositivos.html",
+        usuario=session["usuario"],
+        nombre_entorno=nombre_entorno,
+        cantidad_habitaciones=cantidad_habitaciones,
+        habitaciones=habitaciones
+    )
+
+
+# ==========================================
+# FINALIZAR CASA
+# ==========================================
+
+# ==========================================
+# FINALIZAR Y GUARDAR CASA
+# ==========================================
+
+@app.route(
+    "/crear-entorno/finalizar",
+    methods=["POST"]
+)
+def finalizar_entorno():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    usuario_id = session["usuario_id"]
+
+
+    # ==========================================
+    # DATOS DEL ENTORNO
+    # ==========================================
+
+    nombre_entorno = request.form.get(
+        "nombre_entorno"
+    )
+
+    cantidad_habitaciones = int(
+        request.form.get(
+            "cantidad_habitaciones",
+            0
+        )
+    )
+
+
+    if not nombre_entorno:
+
+        return redirect(
+            url_for("casa")
+        )
+
+
+    # ==========================================
+    # CREAR ENTORNO CASA
+    # ==========================================
+
+    entorno_id = crear_entorno_db(
+        usuario_id,
+        nombre_entorno,
+        "casa"
+    )
+
+
+    # ==========================================
+    # CREAR HABITACIONES
+    # ==========================================
+
+    for numero in range(
+        1,
+        cantidad_habitaciones + 1
+    ):
+
+        nombre_habitacion = request.form.get(
+            f"habitacion{numero}"
+        )
+
+
+        if not nombre_habitacion:
+
+            nombre_habitacion = (
+                f"Habitación {numero}"
+            )
+
+
+        # Crear habitación
+
+        espacio_id = crear_espacio_db(
+            entorno_id,
+            nombre_habitacion,
+            "habitacion"
+        )
+
+
+        # ==========================================
+        # DISPOSITIVOS
+        # ==========================================
+
+        dispositivos = {
+
+            "temperatura":
+                f"temperatura_{numero}",
+
+            "iluminacion":
+                f"iluminacion_{numero}",
+
+            "alarma":
+                f"alarma_{numero}",
+
+            "ventilacion":
+                f"ventilacion_{numero}"
+
+        }
+
+
+        for tipo, campo in dispositivos.items():
+
+            if request.form.get(campo):
+
+                crear_dispositivo_db(
+                    espacio_id,
+                    tipo
+                )
+
+
+    # ==========================================
+    # VOLVER A CASA
+    # ==========================================
+
+    return redirect(
+        url_for("casa")
+    )
+
+# ==========================================
+# COLEGIO
+# ==========================================
+
+@app.route("/colegio")
+def colegio():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    # --------------------------------------
+    # BUSCAR COLEGIO DEL USUARIO
+    # --------------------------------------
+
+    entorno = obtener_entorno(
+        session["usuario_id"],
+        "colegio"
+    )
+
+    # --------------------------------------
+    # SI YA EXISTE
+    # --------------------------------------
+
+    if entorno:
+
+        espacios = obtener_espacios(
+            entorno["id"]
+        )
+
+        espacios_completos = []
+
+        for espacio in espacios:
+
+            dispositivos = obtener_dispositivos(
+                espacio["id"]
+            )
+
+            espacios_completos.append({
+
+                "id": espacio["id"],
+
+                "nombre": espacio["nombre"],
+
+                "tipo": espacio["tipo"],
+
+                "dispositivos": dispositivos
+
+            })
+
+        return render_template(
+            "entorno_colegio.html",
+            usuario=session["usuario"],
+            entorno=entorno,
+            espacios=espacios_completos
+        )
+
+    # --------------------------------------
+    # SI NO EXISTE
+    # --------------------------------------
+
+    return render_template(
+        "colegio.html",
+        usuario=session["usuario"]
+    )
+
+
+# ==========================================
+# CONFIGURAR COLEGIO
+# ==========================================
+
+@app.route(
+    "/colegio/configurar",
+    methods=["POST"]
+)
+def configurar_colegio():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    nombre_entorno = request.form.get(
+        "nombre_entorno"
+    )
+
+    cantidad_aulas = int(
+        request.form.get(
+            "cantidad_aulas",
+            0
+        )
+    )
+
+    cantidad_espacios = int(
+        request.form.get(
+            "cantidad_espacios",
+            0
+        )
+    )
+
+    return render_template(
+        "configurar_colegio.html",
+        usuario=session["usuario"],
+        nombre_entorno=nombre_entorno,
+        cantidad_aulas=cantidad_aulas,
+        cantidad_espacios=cantidad_espacios
+    )
+
+
+# ==========================================
+# CONFIGURAR ESPACIOS DEL COLEGIO
+# ==========================================
+
+@app.route(
+    "/colegio/espacios",
+    methods=["POST"]
+)
+def configurar_espacios_colegio():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    nombre_entorno = request.form.get(
+        "nombre_entorno"
+    )
+
+    cantidad_aulas = int(
+        request.form.get(
+            "cantidad_aulas",
+            0
+        )
+    )
+
+    cantidad_espacios = int(
+        request.form.get(
+            "cantidad_espacios",
+            0
+        )
+    )
+
+    aulas = []
+
+    for numero in range(
+        1,
+        cantidad_aulas + 1
+    ):
+
+        nombre_aula = request.form.get(
+            f"aula{numero}"
+        )
+
+        if not nombre_aula:
+
+            nombre_aula = (
+                f"Aula {numero}"
+            )
+
+        aulas.append(
+            nombre_aula
+        )
+
+    espacios = []
+
+    for numero in range(
+        1,
+        cantidad_espacios + 1
+    ):
+
+        nombre_espacio = request.form.get(
+            f"espacio{numero}"
+        )
+
+        if not nombre_espacio:
+
+            nombre_espacio = (
+                f"Espacio común {numero}"
+            )
+
+        espacios.append(
+            nombre_espacio
+        )
+
+    return render_template(
+        "configurar_dispositivos_colegio.html",
+
+        usuario=session["usuario"],
+
+        nombre_entorno=nombre_entorno,
+
+        aulas=aulas,
+
+        espacios=espacios,
+
+        cantidad_aulas=cantidad_aulas,
+
+        cantidad_espacios=cantidad_espacios
+    )
+
+
+# ==========================================
+# GUARDAR COLEGIO
+# ==========================================
+
+@app.route(
+    "/colegio/guardar",
+    methods=["POST"]
+)
+def guardar_colegio():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    usuario_id = session["usuario_id"]
+
+    nombre_entorno = request.form.get(
+        "nombre_entorno"
+    )
+
+    cantidad_aulas = int(
+        request.form.get(
+            "cantidad_aulas",
+            0
+        )
+    )
+
+    cantidad_espacios = int(
+        request.form.get(
+            "cantidad_espacios",
+            0
+        )
+    )
+
+    if not nombre_entorno:
+
+        return redirect(
+            url_for("colegio")
+        )
+
+    # ==========================================
+    # EVITAR DUPLICAR EL COLEGIO
+    # ==========================================
+
+    colegio_existente = obtener_entorno(
+        usuario_id,
+        "colegio"
+    )
+
+    if colegio_existente:
+
+        return redirect(
+            url_for("colegio")
+        )
+
+    # ==========================================
+    # CREAR ENTORNO
+    # ==========================================
+
+    entorno_id = crear_entorno_db(
+        usuario_id,
+        nombre_entorno,
+        "colegio"
+    )
+
+    # ==========================================
+    # CREAR AULAS
+    # ==========================================
+
+    for numero in range(
+        1,
+        cantidad_aulas + 1
+    ):
+
+        nombre_aula = request.form.get(
+            f"aula_nombre_{numero}"
+        )
+
+        if not nombre_aula:
+
+            nombre_aula = (
+                f"Aula {numero}"
+            )
+
+        espacio_id = crear_espacio_db(
+            entorno_id,
+            nombre_aula,
+            "aula"
+        )
+
+        # --------------------------------------
+        # DISPOSITIVOS DEL AULA
+        # --------------------------------------
+
+        dispositivos = {
+
+            "iluminacion":
+                f"iluminacion_aula_{numero}",
+
+            "temperatura":
+                f"temperatura_aula_{numero}",
+
+            "humedad":
+                f"humedad_aula_{numero}",
+
+            "movimiento":
+                f"movimiento_aula_{numero}",
+
+            "alarma":
+                f"alarma_aula_{numero}",
+
+            "ventilacion":
+                f"ventilacion_aula_{numero}"
+
+        }
+
+        for tipo, campo in dispositivos.items():
+
+            if request.form.get(campo):
+
+                crear_dispositivo_db(
+                    espacio_id,
+                    tipo
+                )
+
+    # ==========================================
+    # CREAR ESPACIOS COMUNES
+    # ==========================================
+
+    for numero in range(
+        1,
+        cantidad_espacios + 1
+    ):
+
+        nombre_espacio = request.form.get(
+            f"espacio_nombre_{numero}"
+        )
+
+        if not nombre_espacio:
+
+            nombre_espacio = (
+                f"Espacio común {numero}"
+            )
+
+        espacio_id = crear_espacio_db(
+            entorno_id,
+            nombre_espacio,
+            "espacio_comun"
+        )
+
+        # --------------------------------------
+        # DISPOSITIVOS DEL ESPACIO
+        # --------------------------------------
+
+        dispositivos = {
+
+            "iluminacion":
+                f"iluminacion_espacio_{numero}",
+
+            "temperatura":
+                f"temperatura_espacio_{numero}",
+
+            "humedad":
+                f"humedad_espacio_{numero}",
+
+            "movimiento":
+                f"movimiento_espacio_{numero}",
+
+            "alarma":
+                f"alarma_espacio_{numero}",
+
+            "ventilacion":
+                f"ventilacion_espacio_{numero}"
+
+        }
+
+        for tipo, campo in dispositivos.items():
+
+            if request.form.get(campo):
+
+                crear_dispositivo_db(
+                    espacio_id,
+                    tipo
+                )
+
+    # ==========================================
+    # VOLVER AL COLEGIO
+    # ==========================================
+
+    return redirect(
+        url_for("colegio")
+    )
+
+
+# ==========================================
+# OFICINA
+# ==========================================
+
+@app.route("/oficina")
+def oficina():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    return render_template(
+        "oficina.html",
+        usuario=session["usuario"]
+    )
+
+
+# ==========================================
+# GARAGE
+# ==========================================
+
+@app.route("/garage")
+def garage():
+
+    if "usuario_id" not in session:
+
+        return redirect(
+            url_for("iniciar_sesion")
+        )
+
+    return render_template(
+        "garage.html",
+        usuario=session["usuario"]
+    )
+
+
 # ==========================================
 # CERRAR SESIÓN
 # ==========================================
@@ -223,7 +1232,9 @@ def logout():
 
     session.clear()
 
-    return redirect(url_for("iniciar_sesion"))
+    return redirect(
+        url_for("iniciar_sesion")
+    )
 
 
 # ==========================================
@@ -234,4 +1245,6 @@ if __name__ == "__main__":
 
     crear_base_datos()
 
-    app.run(debug=True)
+    app.run(
+        debug=True
+    )

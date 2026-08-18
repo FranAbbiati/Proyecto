@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{{ nombre_entorno }} - Centro de Automatización</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='entorno.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <!-- =========================
+         ENCABEZADO
+    ========================== -->
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('index') }}">
+                Mis entornos
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         CONTENIDO
+    ========================== -->
+
+    <main>
+
+        <section class="cabecera-entorno">
+
+            <div>
+
+                <span class="etiqueta">
+                    CASA
+                </span>
+
+                <h2>
+                    {{ nombre_entorno }}
+                </h2>
+
+                <p>
+                    Centro de control del entorno.
+                </p>
+
+            </div>
+
+
+            <div class="estado-entorno">
+
+                <span class="punto-estado"></span>
+
+                Sistema conectado
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             HABITACIONES
+        ========================== -->
+
+        <section class="habitaciones">
+
+            {% for habitacion in habitaciones %}
+
+                <article class="habitacion">
+
+                    <div class="habitacion-cabecera">
+
+                        <div class="habitacion-info">
+
+                            <span class="numero">
+                                {{ "%02d"|format(loop.index) }}
+                            </span>
+
+                            <div>
+
+                                <h3>
+                                    {{ habitacion.nombre }}
+                                </h3>
+
+                                <p>
+                                    Habitación
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================
+                         DISPOSITIVOS
+                    ========================== -->
+
+                    <div class="dispositivos">
+
+                        {% if habitacion.dispositivos %}
+
+                            {% for dispositivo in habitacion.dispositivos %}
+
+                                <div class="dispositivo">
+
+                                    <div class="dispositivo-info">
+
+                                        <strong>
+                                            {{ dispositivo.tipo|capitalize }}
+                                        </strong>
+
+                                        <span>
+                                            Sistema disponible
+                                        </span>
+
+                                    </div>
+
+
+                                    <label class="interruptor">
+
+                                        <input
+                                            type="checkbox"
+                                            {% if dispositivo.estado == "encendido" %}
+                                                checked
+                                            {% endif %}
+                                        >
+
+                                        <span class="slider"></span>
+
+                                    </label>
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <div class="sin-dispositivos">
+
+                                <span>
+                                    Esta habitación no tiene dispositivos configurados.
+                                </span>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            Sistema conectado
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

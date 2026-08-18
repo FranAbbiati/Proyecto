@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurar colegio</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='colegio.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('crear_entorno') }}">
+                Volver
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="introduccion">
+
+            <span class="etiqueta">
+                COLEGIO
+            </span>
+
+            <h2>
+                Configurá tu colegio
+            </h2>
+
+            <p>
+                Definí el nombre del colegio y los espacios
+                que querés administrar.
+            </p>
+
+        </section>
+
+
+        <form
+            action="{{ url_for('configurar_colegio') }}"
+            method="POST"
+            class="formulario"
+        >
+
+            <div class="campo">
+
+                <label for="nombre_entorno">
+                    Nombre del colegio
+                </label>
+
+                <input
+                    type="text"
+                    id="nombre_entorno"
+                    name="nombre_entorno"
+                    placeholder="Ej: Colegio San Martín"
+                    required
+                >
+
+            </div>
+
+
+            <div class="campo">
+
+                <label for="cantidad_aulas">
+                    Cantidad de aulas
+                </label>
+
+                <input
+                    type="number"
+                    id="cantidad_aulas"
+                    name="cantidad_aulas"
+                    min="1"
+                    max="100"
+                    placeholder="Ej: 12"
+                    required
+                >
+
+                <span class="ayuda">
+                    Incluí las aulas que querés automatizar.
+                </span>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label for="cantidad_espacios">
+                    Cantidad de espacios comunes
+                </label>
+
+                <input
+                    type="number"
+                    id="cantidad_espacios"
+                    name="cantidad_espacios"
+                    min="0"
+                    max="50"
+                    placeholder="Ej: 4"
+                    required
+                >
+
+                <span class="ayuda">
+                    Por ejemplo: patio, biblioteca, comedor o pasillos.
+                </span>
+
+            </div>
+
+
+            <div class="acciones">
+
+                <a
+                    href="{{ url_for('crear_entorno') }}"
+                    class="boton-secundario"
+                >
+                    Volver
+                </a>
+
+                <button
+                    type="submit"
+                    class="boton"
+                >
+                    Continuar
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            ● Sistema conectado
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

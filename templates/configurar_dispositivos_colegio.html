@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Dispositivos - Colegio</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='colegio.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('colegio') }}">
+                Volver
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="introduccion">
+
+            <span class="etiqueta">
+                COLEGIO
+            </span>
+
+            <h2>
+                Elegí los dispositivos
+            </h2>
+
+            <p>
+                Seleccioná qué dispositivos y variables
+                querés controlar en cada espacio de
+                {{ nombre_entorno }}.
+            </p>
+
+        </section>
+
+
+        <form
+            action="{{ url_for('guardar_colegio') }}"
+            method="POST"
+            class="formulario"
+        >
+
+            <input
+                type="hidden"
+                name="nombre_entorno"
+                value="{{ nombre_entorno }}"
+            >
+            <input
+                type="hidden"
+                name="cantidad_aulas"
+                value="{{ cantidad_aulas }}"
+            >
+
+            <input
+                type="hidden"
+                name="cantidad_espacios"
+                value="{{ cantidad_espacios }}"
+            >
+            {% for aula in aulas %}
+
+                <input
+                    type="hidden"
+                    name="aula_nombre_{{ loop.index }}"
+                    value="{{ aula }}"
+                >
+
+            {% endfor %}
+
+
+            {% for espacio in espacios %}
+
+                <input
+                    type="hidden"
+                    name="espacio_nombre_{{ loop.index }}"
+                    value="{{ espacio }}"
+                >
+
+            {% endfor %}
+            <!-- =========================
+                 AULAS
+            ========================== -->
+
+            {% if aulas %}
+
+                <h3>
+                    Aulas
+                </h3>
+
+                {% for aula in aulas %}
+
+                    <div class="campo">
+
+                        <label>
+                            🏫 {{ aula }}
+                        </label>
+
+
+                        <div class="dispositivos">
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="iluminacion_aula_{{ loop.index }}"
+                                >
+                                💡 Iluminación
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="temperatura_aula_{{ loop.index }}"
+                                >
+                                🌡️ Temperatura
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="humedad_aula_{{ loop.index }}"
+                                >
+                                💧 Humedad
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="movimiento_aula_{{ loop.index }}"
+                                >
+                                👤 Movimiento
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="alarma_aula_{{ loop.index }}"
+                                >
+                                🚨 Alarma
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="ventilacion_aula_{{ loop.index }}"
+                                >
+                                🌀 Ventilación
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+
+            <!-- =========================
+                 ESPACIOS COMUNES
+            ========================== -->
+
+            {% if espacios %}
+
+                <h3>
+                    Espacios comunes
+                </h3>
+
+                {% for espacio in espacios %}
+
+                    <div class="campo">
+
+                        <label>
+                            📍 {{ espacio }}
+                        </label>
+
+
+                        <div class="dispositivos">
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="iluminacion_espacio_{{ loop.index }}"
+                                >
+                                💡 Iluminación
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="temperatura_espacio_{{ loop.index }}"
+                                >
+                                🌡️ Temperatura
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="humedad_espacio_{{ loop.index }}"
+                                >
+                                💧 Humedad
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="movimiento_espacio_{{ loop.index }}"
+                                >
+                                👤 Movimiento
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="alarma_espacio_{{ loop.index }}"
+                                >
+                                🚨 Alarma
+                            </label>
+
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="ventilacion_espacio_{{ loop.index }}"
+                                >
+                                🌀 Ventilación
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+
+            <div class="acciones">
+
+                <a
+                    href="{{ url_for('colegio') }}"
+                    class="boton-secundario"
+                >
+                    Volver
+                </a>
+
+                <button
+                    type="submit"
+                    class="boton"
+                >
+                    Crear colegio
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            ● Sistema conectado
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

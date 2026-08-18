@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurar Casa</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='casa.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('crear_entorno') }}">
+                Volver
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="introduccion">
+
+            <span class="etiqueta">
+                🏠 CASA
+            </span>
+
+            <h2>
+                Configurá tu casa
+            </h2>
+
+            <p>
+                Primero vamos a definir algunos datos
+                básicos de tu entorno.
+            </p>
+
+        </section>
+
+
+        <form
+            action="{{ url_for('configurar_habitaciones') }}"
+            method="POST"
+            class="formulario"
+        >
+
+            <div class="campo">
+
+                <label for="nombre_entorno">
+                    ¿Cómo querés llamar a este entorno?
+                </label>
+
+                <input
+                    type="text"
+                    id="nombre_entorno"
+                    name="nombre_entorno"
+                    placeholder="Ej: Mi casa"
+                    required
+                >
+
+                <span class="ayuda">
+                    Podés ponerle el nombre que quieras.
+                </span>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label for="cantidad_habitaciones">
+                    ¿Cuántas habitaciones tiene tu casa?
+                </label>
+
+                <input
+                    type="number"
+                    id="cantidad_habitaciones"
+                    name="cantidad_habitaciones"
+                    min="1"
+                    max="20"
+                    placeholder="Ej: 3"
+                    required
+                >
+
+                <span class="ayuda">
+                    Después vamos a configurar cada una.
+                </span>
+
+            </div>
+
+
+            <div class="acciones">
+
+                <a
+                    href="{{ url_for('crear_entorno') }}"
+                    class="boton-secundario"
+                >
+                    Volver
+                </a>
+
+                <button
+                    type="submit"
+                    class="boton"
+                >
+                    Continuar
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            ● Sistema conectado
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

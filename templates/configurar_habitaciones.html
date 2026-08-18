@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurar habitaciones</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='casa.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('crear_entorno') }}">
+                Volver
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="introduccion">
+
+            <span class="etiqueta">
+                CASA
+            </span>
+
+            <h2>
+                Configurá las habitaciones
+            </h2>
+
+            <p>
+                Ahora vamos a definir los espacios
+                que forman parte de {{ nombre_entorno }}.
+            </p>
+
+        </section>
+
+
+        <form
+            action="{{ url_for('configurar_dispositivos') }}"
+            method="POST"
+            class="formulario"
+        >
+
+            <input
+                type="hidden"
+                name="nombre_entorno"
+                value="{{ nombre_entorno }}"
+            >
+
+            <input
+                type="hidden"
+                name="cantidad_habitaciones"
+                value="{{ cantidad_habitaciones }}"
+            >
+
+
+            {% for numero in range(1, cantidad_habitaciones + 1) %}
+
+                <div class="campo">
+
+                    <label for="habitacion{{ numero }}">
+                        Habitación {{ numero }}
+                    </label>
+
+                    <input
+                        type="text"
+                        id="habitacion{{ numero }}"
+                        name="habitacion{{ numero }}"
+                        placeholder="Ej: Dormitorio"
+                        required
+                    >
+
+                    <span class="ayuda">
+                        Escribí el nombre de esta habitación.
+                    </span>
+
+                </div>
+
+            {% endfor %}
+
+
+            <div class="acciones">
+
+                <a
+                    href="{{ url_for('casa') }}"
+                    class="boton-secundario"
+                >
+                    Volver
+                </a>
+
+                <button
+                    type="submit"
+                    class="boton"
+                >
+                    Continuar
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            ● Sistema conectado
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

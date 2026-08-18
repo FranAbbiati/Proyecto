@@ -40,20 +40,26 @@ body {
     align-items: center;
     justify-content: space-between;
 
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom:
+        1px solid rgba(255,255,255,0.07);
 
-    background: rgba(10, 23, 33, 0.45);
+    background:
+        rgba(10, 23, 33, 0.45);
 }
 
 
-/* LOGO */
+/* =========================
+   LOGO
+========================= */
 
 .logo {
     display: flex;
+
     align-items: center;
 
     gap: 12px;
 }
+
 
 .logo-punto {
     width: 11px;
@@ -67,6 +73,7 @@ body {
         0 0 12px rgba(77,163,217,0.7);
 }
 
+
 .logo h1 {
     font-size: 18px;
 
@@ -76,10 +83,13 @@ body {
 }
 
 
-/* USUARIO */
+/* =========================
+   USUARIO
+========================= */
 
 .usuario {
     display: flex;
+
     align-items: center;
 
     gap: 22px;
@@ -89,6 +99,7 @@ body {
     color: #b8c8d3;
 }
 
+
 .usuario a {
     color: #6f91a3;
 
@@ -96,6 +107,7 @@ body {
 
     transition: 0.2s;
 }
+
 
 .usuario a:hover {
     color: #ffffff;
@@ -108,6 +120,7 @@ body {
 
 main {
     width: 100%;
+
     max-width: 1000px;
 
     margin: 0 auto;
@@ -126,6 +139,7 @@ main {
     margin-bottom: 65px;
 }
 
+
 .bienvenida h2 {
     font-size: 40px;
 
@@ -135,6 +149,7 @@ main {
 
     margin-bottom: 12px;
 }
+
 
 .bienvenida p {
     color: #91a5b2;
@@ -149,20 +164,28 @@ main {
    ENTORNOS
 ========================= */
 
+.entornos {
+    width: 100%;
+}
+
+
 .titulo {
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
     margin-bottom: 22px;
 }
+
 
 .titulo h3 {
     font-size: 21px;
 
     font-weight: 500;
 }
+
 
 .titulo span {
     color: #647b89;
@@ -172,85 +195,240 @@ main {
 
 
 /* =========================
-   CONTENEDOR
+   CONTENEDOR DE TARJETAS
 ========================= */
 
 .contenedor-entornos {
     width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
 }
 
 
 /* =========================
-   SIN ENTORNOS
+   TARJETA DE ENTORNO
 ========================= */
 
-.sin-entornos {
-    width: 100%;
+.entorno-card {
+    min-height: 190px;
 
-    min-height: 320px;
-
-    padding: 50px;
+    padding: 25px;
 
     display: flex;
+
+    flex-direction: column;
+
+    background: #182733;
+
+    border:
+        1px solid rgba(255,255,255,0.07);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.15);
+
+    transition:
+        transform 0.2s,
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+
+.entorno-card:hover {
+    transform: translateY(-3px);
+
+    border-color:
+        rgba(61,155,209,0.25);
+
+    box-shadow:
+        0 14px 35px rgba(0,0,0,0.22);
+}
+
+
+/* =========================
+   ICONO DEL ENTORNO
+========================= */
+
+.entorno-icono {
+    width: 55px;
+    height: 55px;
+
+    margin-bottom: 18px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #10212d;
+
+    border:
+        1px solid rgba(85,182,237,0.12);
+
+    font-size: 27px;
+}
+
+
+/* =========================
+   INFORMACIÓN DEL ENTORNO
+========================= */
+
+.entorno-info {
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.entorno-info h4 {
+    margin-bottom: 7px;
+
+    font-size: 19px;
+
+    font-weight: 500;
+
+    color: #ffffff;
+
+    word-break: break-word;
+}
+
+
+.entorno-info p {
+    color: #7f96a5;
+
+    font-size: 13px;
+
+    text-transform: capitalize;
+}
+
+
+/* =========================
+   ACCIÓN DEL ENTORNO
+========================= */
+
+.entorno-accion {
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 20px;
+}
+
+
+.entorno-accion .boton {
+    display: inline-block;
+
+    padding:
+        10px 20px;
+}
+
+
+/* =========================
+   CREAR NUEVO ENTORNO
+========================= */
+
+.crear-entorno-card {
+    min-height: 190px;
+
+    padding: 25px;
+
+    display: flex;
+
     flex-direction: column;
 
     align-items: center;
+
     justify-content: center;
 
     text-align: center;
 
-    background: #182733;
+    background:
+        rgba(24,39,51,0.55);
 
-    border: 1px solid rgba(255,255,255,0.07);
+    border:
+        1px dashed rgba(85,182,237,0.22);
 
     border-radius: 18px;
+
+    transition:
+        background 0.2s,
+        border-color 0.2s,
+        transform 0.2s;
 }
 
 
-/* ICONO */
+.crear-entorno-card:hover {
+    background:
+        rgba(24,39,51,0.85);
 
-.icono {
-    width: 65px;
-    height: 65px;
+    border-color:
+        rgba(85,182,237,0.45);
 
-    margin-bottom: 22px;
+    transform: translateY(-3px);
+}
+
+
+/* =========================
+   ICONO CREAR
+========================= */
+
+.crear-entorno-card .icono {
+    width: 55px;
+    height: 55px;
+
+    margin-bottom: 15px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
-    border-radius: 16px;
+    border-radius: 14px;
 
     background: #10212d;
 
     color: #55b6ed;
 
-    font-size: 32px;
+    font-size: 28px;
 
-    border: 1px solid rgba(85,182,237,0.12);
+    border:
+        1px solid rgba(85,182,237,0.15);
 }
 
 
-/* TEXTO */
+/* =========================
+   TEXTO CREAR
+========================= */
 
-.sin-entornos h4 {
-    margin-bottom: 10px;
+.crear-entorno-card h4 {
+    margin-bottom: 7px;
 
-    font-size: 20px;
+    font-size: 18px;
 
     font-weight: 500;
+
+    color: #ffffff;
 }
 
-.sin-entornos p {
-    max-width: 420px;
 
-    margin-bottom: 28px;
+.crear-entorno-card p {
+    max-width: 300px;
+
+    margin-bottom: 18px;
 
     color: #7f96a5;
 
-    font-size: 14px;
+    font-size: 13px;
 
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
 
@@ -259,7 +437,10 @@ main {
 ========================= */
 
 .boton {
-    padding: 13px 25px;
+    display: inline-block;
+
+    padding:
+        13px 25px;
 
     border-radius: 9px;
 
@@ -279,6 +460,7 @@ main {
         box-shadow 0.2s;
 }
 
+
 .boton:hover {
     background: #3188bb;
 
@@ -286,6 +468,87 @@ main {
 
     box-shadow:
         0 8px 20px rgba(61,155,209,0.25);
+}
+
+
+/* =========================
+   ESTADO SIN ENTORNOS
+========================= */
+
+/*
+   Se mantiene por si en algún momento
+   queremos utilizar esta clase nuevamente.
+*/
+
+.sin-entornos {
+    width: 100%;
+
+    min-height: 320px;
+
+    padding: 50px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    background: #182733;
+
+    border:
+        1px solid rgba(255,255,255,0.07);
+
+    border-radius: 18px;
+}
+
+
+.sin-entornos .icono {
+    width: 65px;
+    height: 65px;
+
+    margin-bottom: 22px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    background: #10212d;
+
+    color: #55b6ed;
+
+    font-size: 32px;
+
+    border:
+        1px solid rgba(85,182,237,0.12);
+}
+
+
+.sin-entornos h4 {
+    margin-bottom: 10px;
+
+    font-size: 20px;
+
+    font-weight: 500;
+}
+
+
+.sin-entornos p {
+    max-width: 420px;
+
+    margin-bottom: 28px;
+
+    color: #7f96a5;
+
+    font-size: 14px;
+
+    line-height: 1.6;
 }
 
 
@@ -301,14 +564,17 @@ footer {
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
-    border-top: 1px solid rgba(255,255,255,0.06);
+    border-top:
+        1px solid rgba(255,255,255,0.06);
 
     color: #526a78;
 
     font-size: 12px;
 }
+
 
 .estado {
     color: #54d99a;
@@ -319,33 +585,107 @@ footer {
    RESPONSIVE
 ========================= */
 
+@media (max-width: 750px) {
+
+    .contenedor-entornos {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
 @media (max-width: 650px) {
 
     .encabezado {
-        padding: 0 25px;
+        height: auto;
+
+        padding: 20px 25px;
+
+        gap: 15px;
+
+        flex-direction: column;
+
+        align-items: flex-start;
     }
 
-    .usuario a {
-        display: none;
+
+    .usuario {
+        width: 100%;
+
+        justify-content: space-between;
     }
+
 
     main {
         padding: 50px 20px;
     }
 
-    .bienvenida h2 {
-        font-size: 32px;
-    }
 
     .bienvenida {
         margin-bottom: 45px;
     }
 
-    .sin-entornos {
-        padding: 35px 20px;
+
+    .bienvenida h2 {
+        font-size: 32px;
     }
 
-    footer {
-        padding: 0 25px;
+
+    .usuario a {
+        display: block;
     }
+
+
+    footer {
+        height: auto;
+
+        padding: 20px 25px;
+
+        flex-direction: column;
+
+        gap: 8px;
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    .logo h1 {
+        font-size: 16px;
+    }
+
+
+    .usuario {
+        font-size: 13px;
+    }
+
+
+    .bienvenida h2 {
+        font-size: 28px;
+    }
+
+
+    .bienvenida p {
+        font-size: 15px;
+    }
+
+
+    .entorno-card,
+    .crear-entorno-card {
+        padding: 20px;
+    }
+
+
+    .entorno-accion {
+        justify-content: stretch;
+    }
+
+
+    .entorno-accion .boton {
+        width: 100%;
+
+        text-align: center;
+    }
+
 }

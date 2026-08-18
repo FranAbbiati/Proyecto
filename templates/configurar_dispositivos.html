@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurar dispositivos</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='dispositivos.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <!-- =========================
+         ENCABEZADO
+    ========================== -->
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('casa') }}">
+                Volver
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         CONTENIDO
+    ========================== -->
+
+    <main>
+
+        <section class="introduccion">
+
+            <span class="etiqueta">
+                CASA
+            </span>
+
+            <h2>
+                Configurá tus dispositivos
+            </h2>
+
+            <p>
+                Elegí qué funciones querés automatizar
+                en cada habitación de {{ nombre_entorno }}.
+            </p>
+
+        </section>
+
+
+        <!-- =========================
+             FORMULARIO
+        ========================== -->
+
+        <form
+            action="{{ url_for('finalizar_entorno') }}"
+            method="POST"
+            class="formulario"
+        >
+
+            <!-- Datos generales -->
+
+            <input
+                type="hidden"
+                name="nombre_entorno"
+                value="{{ nombre_entorno }}"
+            >
+
+            <input
+                type="hidden"
+                name="cantidad_habitaciones"
+                value="{{ cantidad_habitaciones }}"
+            >
+
+
+            <!-- =========================
+                 HABITACIONES
+            ========================== -->
+
+            {% for habitacion in habitaciones %}
+
+                <!-- Guardamos el nombre -->
+
+                <input
+                    type="hidden"
+                    name="habitacion{{ loop.index }}"
+                    value="{{ habitacion }}"
+                >
+
+
+                <section class="habitacion">
+
+                    <!-- Cabecera -->
+
+                    <div class="habitacion-cabecera">
+
+                        <div>
+
+                            <span class="numero">
+                                {{ "%02d"|format(loop.index) }}
+                            </span>
+
+                            <div>
+
+                                <h3>
+                                    {{ habitacion }}
+                                </h3>
+
+                                <p>
+                                    Seleccioná los sistemas que querés controlar.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================
+                         DISPOSITIVOS
+                    ========================== -->
+
+                    <div class="dispositivos">
+
+
+                        <!-- TEMPERATURA -->
+
+                        <label class="dispositivo">
+
+                            <input
+                                type="checkbox"
+                                name="temperatura_{{ loop.index }}"
+                            >
+
+                            <span class="check"></span>
+
+                            <span class="contenido-dispositivo">
+
+                                <strong>
+                                    Temperatura
+                                </strong>
+
+                                <small>
+                                    Control y monitoreo de temperatura.
+                                </small>
+
+                            </span>
+
+                        </label>
+
+
+                        <!-- ILUMINACIÓN -->
+
+                        <label class="dispositivo">
+
+                            <input
+                                type="checkbox"
+                                name="iluminacion_{{ loop.index }}"
+                            >
+
+                            <span class="check"></span>
+
+                            <span class="contenido-dispositivo">
+
+                                <strong>
+                                    Iluminación
+                                </strong>
+
+                                <small>
+                                    Control automático de las luces.
+                                </small>
+
+                            </span>
+
+                        </label>
+
+
+                        <!-- ALARMA -->
+
+                        <label class="dispositivo">
+
+                            <input
+                                type="checkbox"
+                                name="alarma_{{ loop.index }}"
+                            >
+
+                            <span class="check"></span>
+
+                            <span class="contenido-dispositivo">
+
+                                <strong>
+                                    Alarma
+                                </strong>
+
+                                <small>
+                                    Sistema de seguridad y alertas.
+                                </small>
+
+                            </span>
+
+                        </label>
+
+
+                        <!-- VENTILACIÓN -->
+
+                        <label class="dispositivo">
+
+                            <input
+                                type="checkbox"
+                                name="ventilacion_{{ loop.index }}"
+                            >
+
+                            <span class="check"></span>
+
+                            <span class="contenido-dispositivo">
+
+                                <strong>
+                                    Ventilación
+                                </strong>
+
+                                <small>
+                                    Control del sistema de ventilación.
+                                </small>
+
+                            </span>
+
+                        </label>
+
+
+                    </div>
+
+                </section>
+
+            {% endfor %}
+
+
+            <!-- =========================
+                 ACCIONES
+            ========================== -->
+
+            <div class="acciones">
+
+                <a
+                    href="{{ url_for('casa') }}"
+                    class="boton-secundario"
+                >
+                    Volver
+                </a>
+
+                <button
+                    type="submit"
+                    class="boton"
+                >
+                    Crear entorno
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            Sistema conectado
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

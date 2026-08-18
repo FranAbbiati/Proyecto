@@ -1,0 +1,523 @@
+/* =========================
+   GENERAL
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family: Arial, sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0f1c27,
+            #172d3d
+        );
+
+    color: #ffffff;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================
+   ENCABEZADO
+========================= */
+
+.encabezado {
+    height: 75px;
+
+    padding: 0 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+
+    background: rgba(10, 23, 33, 0.45);
+}
+
+
+.logo {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.logo-punto {
+    width: 11px;
+    height: 11px;
+
+    border-radius: 50%;
+
+    background: #4da3d9;
+
+    box-shadow:
+        0 0 12px rgba(77,163,217,0.7);
+}
+
+
+.logo h1 {
+    font-size: 18px;
+
+    font-weight: 600;
+}
+
+
+.usuario {
+    display: flex;
+    align-items: center;
+
+    gap: 22px;
+
+    font-size: 14px;
+
+    color: #b8c8d3;
+}
+
+
+.usuario a {
+    color: #6f91a3;
+
+    text-decoration: none;
+
+    transition: 0.2s;
+}
+
+
+.usuario a:hover {
+    color: #ffffff;
+}
+
+
+/* =========================
+   CONTENIDO
+========================= */
+
+main {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    padding: 65px 35px;
+
+    flex: 1;
+}
+
+
+/* =========================
+   CABECERA DEL ENTORNO
+========================= */
+
+.cabecera-entorno {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 30px;
+
+    margin-bottom: 45px;
+}
+
+
+.etiqueta {
+    color: #55b6ed;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    letter-spacing: 1.5px;
+}
+
+
+.cabecera-entorno h2 {
+    margin-top: 10px;
+
+    margin-bottom: 8px;
+
+    font-size: 38px;
+
+    font-weight: 600;
+
+    letter-spacing: -0.8px;
+}
+
+
+.cabecera-entorno p {
+    color: #91a5b2;
+
+    font-size: 15px;
+}
+
+
+.estado-entorno {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 10px 15px;
+
+    border: 1px solid rgba(84,217,154,0.12);
+
+    border-radius: 20px;
+
+    background: rgba(84,217,154,0.05);
+
+    color: #7dcfa7;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+
+.punto-estado {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #54d99a;
+
+    box-shadow:
+        0 0 8px rgba(84,217,154,0.7);
+}
+
+
+/* =========================
+   HABITACIONES
+========================= */
+
+.habitaciones {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+
+.habitacion {
+    overflow: hidden;
+
+    background: #182733;
+
+    border: 1px solid rgba(255,255,255,0.07);
+
+    border-radius: 18px;
+
+    transition:
+        border-color 0.2s,
+        transform 0.2s;
+}
+
+
+.habitacion:hover {
+    border-color: rgba(77,163,217,0.2);
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================
+   CABECERA HABITACIÓN
+========================= */
+
+.habitacion-cabecera {
+    padding: 24px 28px;
+
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+
+.habitacion-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+}
+
+
+.numero {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #10212d;
+
+    border: 1px solid rgba(255,255,255,0.07);
+
+    color: #55b6ed;
+
+    font-size: 12px;
+
+    font-weight: bold;
+}
+
+
+.habitacion h3 {
+    margin-bottom: 5px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+}
+
+
+.habitacion-info p {
+    color: #667f8d;
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   DISPOSITIVOS
+========================= */
+
+.dispositivos {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+}
+
+
+.dispositivo {
+    min-height: 95px;
+
+    padding: 22px 25px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border-right: 1px solid rgba(255,255,255,0.05);
+
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+
+.dispositivo:nth-child(2n) {
+    border-right: none;
+}
+
+
+.dispositivo:nth-last-child(-n + 2) {
+    border-bottom: none;
+}
+
+
+.dispositivo-info {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+
+.dispositivo-info strong {
+    font-size: 14px;
+
+    font-weight: 500;
+
+    color: #dce7ed;
+}
+
+
+.dispositivo-info span {
+    font-size: 11px;
+
+    color: #617987;
+}
+
+
+/* =========================
+   INTERRUPTOR
+========================= */
+
+.interruptor {
+    position: relative;
+
+    width: 42px;
+    height: 23px;
+
+    flex-shrink: 0;
+}
+
+
+.interruptor input {
+    opacity: 0;
+
+    width: 0;
+    height: 0;
+}
+
+
+.slider {
+    position: absolute;
+
+    inset: 0;
+
+    cursor: pointer;
+
+    border-radius: 30px;
+
+    background: #273b48;
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    transition: 0.25s;
+}
+
+
+.slider::before {
+    content: "";
+
+    position: absolute;
+
+    width: 17px;
+    height: 17px;
+
+    left: 2px;
+    top: 2px;
+
+    border-radius: 50%;
+
+    background: #91a5b2;
+
+    transition: 0.25s;
+}
+
+
+.interruptor input:checked + .slider {
+    background: #3d9bd1;
+
+    border-color: #3d9bd1;
+}
+
+
+.interruptor input:checked + .slider::before {
+    transform: translateX(19px);
+
+    background: #ffffff;
+}
+
+
+/* =========================
+   SIN DISPOSITIVOS
+========================= */
+
+.sin-dispositivos {
+    padding: 25px;
+
+    color: #667f8d;
+
+    font-size: 13px;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    height: 60px;
+
+    padding: 0 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-top:
+        1px solid rgba(255,255,255,0.06);
+
+    color: #526a78;
+
+    font-size: 12px;
+}
+
+
+.estado {
+    color: #54d99a;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 700px) {
+
+    .encabezado {
+        padding: 0 25px;
+    }
+
+    .usuario span {
+        display: none;
+    }
+
+    main {
+        padding: 45px 20px;
+    }
+
+    .cabecera-entorno {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .cabecera-entorno h2 {
+        font-size: 30px;
+    }
+
+    .dispositivos {
+        grid-template-columns: 1fr;
+    }
+
+    .dispositivo,
+    .dispositivo:nth-child(2n) {
+        border-right: none;
+
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .dispositivo:last-child {
+        border-bottom: none;
+    }
+
+    footer {
+        padding: 0 25px;
+    }
+
+}
