@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurar Garage</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='configurar_garage.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('index') }}">
+                Volver
+            </a>
+
+        </div>
+
+    </header>
+
+
+
+    <main>
+
+
+        <section class="introduccion">
+
+            <span class="etiqueta">
+                GARAGE
+            </span>
+
+            <h2>
+                Configurá tu garage
+            </h2>
+
+            <p>
+                Elegí qué funciones querés controlar
+                desde el panel de automatización.
+            </p>
+
+        </section>
+
+
+
+        <form
+            action="{{ url_for('guardar_garage') }}"
+            method="POST"
+            class="formulario"
+        >
+
+
+            <div class="dispositivos">
+
+
+                <!-- PORTÓN -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="porton"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            🚪 Portón
+                        </strong>
+
+                        <small>
+                            Apertura, cierre y bloqueo del portón.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+
+                <!-- TEMPERATURA -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="temperatura"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            🌡️ Temperatura
+                        </strong>
+
+                        <small>
+                            Monitoreo de temperatura del garage.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+
+                <!-- HUMEDAD -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="humedad"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            💧 Humedad
+                        </strong>
+
+                        <small>
+                            Monitoreo de humedad.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+
+                <!-- MOVIMIENTO -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="movimiento"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            🚶 Movimiento
+                        </strong>
+
+                        <small>
+                            Detección de movimiento.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+
+                <!-- ILUMINACIÓN -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="iluminacion"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            💡 Iluminación
+                        </strong>
+
+                        <small>
+                            Control de las luces del garage.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+
+                <!-- ALARMA -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="alarma"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            🚨 Alarma
+                        </strong>
+
+                        <small>
+                            Sistema de seguridad y alertas.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+
+                <!-- VENTILACIÓN -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="ventilacion"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            ❄️ Ventilación
+                        </strong>
+
+                        <small>
+                            Control de ventilación.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+
+                <!-- CÁMARA -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="camara"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            📹 Cámara
+                        </strong>
+
+                        <small>
+                            Visualización del garage.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+            </div>
+
+
+
+            <div class="acciones">
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="boton-secundario"
+                >
+                    Cancelar
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="boton"
+                >
+                    Guardar configuración
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </main>
+
+
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            Sistema conectado
+        </span>
+
+    </footer>
+
+
+</body>
+
+</html>

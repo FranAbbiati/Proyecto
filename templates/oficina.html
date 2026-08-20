@@ -1,93 +1,475 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Office Control - Raspberry Pi</title>
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='oficinacss.css') }}"
->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>{{ entorno.nombre }} - Centro de Automatización</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='oficinacss.css') }}"
+    >
+
 </head>
+
 
 <body>
 
-  <div class="container">
+<div class="container">
+
+
+    <!-- =========================
+         ENCABEZADO
+    ========================== -->
 
     <header>
-      <div class="logo">
-        <div class="logo-icon" style="background: #0284c7;">🏢</div>
-        <div>
-          <h1>Office Control</h1>
-          <small style="color:#94a3b8;">Panel de automatización de oficina</small>
-        </div>
-      </div>
 
-      <div class="connection">
-        <span class="dot" id="connectionDot"></span>
-        <span id="connectionText">Verificando...</span>
-      </div>
+        <div class="logo">
+
+            <div class="logo-icon">
+                🏢
+            </div>
+
+            <div>
+
+                <h1>
+                    {{ entorno.nombre }}
+                </h1>
+
+                <small>
+                    Panel de automatización de oficina
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-derecha">
+
+            <div class="connection">
+
+                <span
+                    class="dot"
+                    id="connectionDot"
+                ></span>
+
+                <span id="connectionText">
+                    Sistema conectado
+                </span>
+
+            </div>
+
+            <a
+                href="{{ url_for('index') }}"
+                class="boton-volver"
+            >
+                Mis entornos
+            </a>
+
+        </div>
+
     </header>
+
+
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
 
     <div class="grid">
 
-      <!-- CONTROL PRINCIPAL -->
-      <div class="card office-card" style="text-align: center;">
-        <div class="office-icon" id="officeIcon" style="font-size: 90px; margin: 15px 0;">🚪</div>
-        <div class="status" id="officeStatus" style="font-size: 28px; font-weight: bold; margin-bottom: 8px;">Bloqueada</div>
-        <div class="substatus" id="officeSubstatus" style="color: #94a3b8; margin-bottom: 25px;">Acceso de oficina seguro</div>
 
-        <button class="main-button" id="officeButton" onclick="toggleDoor()" style="background: #0284c7;">
-          DESBLOQUEAR PUERTA
-        </button>
+        <!-- =========================
+             CONTROL PRINCIPAL
+        ========================== -->
 
-        <div class="controls">
-          <button class="control-button" id="lightButton" onclick="toggleLight()">💡 Luces</button>
-          <button class="control-button" id="alarmButton" onclick="toggleAlarm()">🚨 Alarma</button>
-          <button class="control-button" onclick="refreshStatus()">🔄 Actualizar</button>
-          <button class="control-button" id="acButton" onclick="toggleAC()">❄️ Clima (AC)</button>
+        <div class="card office-card">
+
+            <div
+                class="office-icon"
+                id="officeIcon"
+            >
+                🚪
+            </div>
+
+
+            <div
+                class="status"
+                id="officeStatus"
+            >
+                Bloqueada
+            </div>
+
+
+            <div
+                class="substatus"
+                id="officeSubstatus"
+            >
+                Acceso de oficina seguro
+            </div>
+
+
+            <button
+                class="main-button"
+                id="officeButton"
+                onclick="toggleDoor()"
+            >
+                DESBLOQUEAR PUERTA
+            </button>
+
+
+
+            <!-- =========================
+                 CONTROLES GENERALES
+            ========================== -->
+
+            <div class="controls">
+
+
+                {% for dispositivo in dispositivos %}
+
+
+                    {% if dispositivo["tipo"] == "iluminacion" %}
+
+                        <button
+                            class="control-button"
+                            id="lightButton"
+                            onclick="toggleLight()"
+                        >
+                            💡 Luces
+                        </button>
+
+                    {% endif %}
+
+
+
+                    {% if dispositivo["tipo"] == "alarma" %}
+
+                        <button
+                            class="control-button"
+                            id="alarmButton"
+                            onclick="toggleAlarm()"
+                        >
+                            🚨 Alarma
+                        </button>
+
+                    {% endif %}
+
+
+
+                    {% if dispositivo["tipo"] == "ventilacion" %}
+
+                        <button
+                            class="control-button"
+                            id="acButton"
+                            onclick="toggleAC()"
+                        >
+                            ❄️ Clima
+                        </button>
+
+                    {% endif %}
+
+
+                {% endfor %}
+
+
+
+                <!-- ACTUALIZAR SIEMPRE DISPONIBLE -->
+
+                <button
+                    class="control-button"
+                    onclick="refreshStatus()"
+                >
+                    🔄 Actualizar
+                </button>
+
+
+            </div>
+
         </div>
-      </div>
 
-      <!-- INFORMACIÓN -->
-      <div>
-        <div class="card">
-          <h2>Estado del ambiente</h2>
-          <div class="info">
-            <div class="info-box"><small>Humedad</small><strong id="humidityVal">--%</strong></div>
-            <div class="info-box"><small>Red Oficina</small><strong>Estable</strong></div>
-            <div class="info-box"><small>Temperatura</small><strong id="tempVal">-- °C</strong></div>
-            <div class="info-box"><small>Última actualización</small><strong id="lastUpdate">Ahora</strong></div>
-          </div>
-        </div>
 
-        <div class="card" style="margin-top:20px;">
-          <h2>📹 Cámara de Oficina</h2>
-          <div class="camera">
-            <div class="camera-label">CAM_OFFICE_01</div>
-            <div class="recording">● REC</div>
-            <span>Transmisión en vivo</span>
-          </div>
+
+        <!-- =========================
+             INFORMACIÓN
+        ========================== -->
+
+        <div>
+
+
+            <div class="card">
+
+                <h2>
+                    Estado del ambiente
+                </h2>
+
+
+                <div class="info">
+
+
+                    <!-- TEMPERATURA -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "temperatura" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    🌡️ Temperatura
+                                </small>
+
+                                <strong id="tempVal">
+                                    -- °C
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- HUMEDAD -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "humedad" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    💧 Humedad
+                                </small>
+
+                                <strong id="humidityVal">
+                                    -- %
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- MOVIMIENTO -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "movimiento" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    🚶 Movimiento
+                                </small>
+
+                                <strong id="movementVal">
+                                    Sin detectar
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- ILUMINACIÓN -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "iluminacion" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    💡 Iluminación
+                                </small>
+
+                                <strong id="lightVal">
+                                    Apagada
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- VENTILACIÓN -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "ventilacion" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    ❄️ Clima
+                                </small>
+
+                                <strong id="acVal">
+                                    Apagado
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- RED -->
+
+                    <div class="info-box">
+
+                        <small>
+                            🌐 Red Oficina
+                        </small>
+
+                        <strong>
+                            Estable
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- ÚLTIMA ACTUALIZACIÓN -->
+
+                    <div class="info-box">
+
+                        <small>
+                            🕐 Última actualización
+                        </small>
+
+                        <strong id="lastUpdate">
+                            Ahora
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 CÁMARA
+            ========================== -->
+
+            {% for dispositivo in dispositivos %}
+
+                {% if dispositivo["tipo"] == "camara" %}
+
+                    <div
+                        class="card"
+                        style="margin-top:20px;"
+                    >
+
+                        <h2>
+                            📹 Cámara de Oficina
+                        </h2>
+
+
+                        <div class="camera">
+
+                            <div class="camera-label">
+                                CAM_OFFICE_01
+                            </div>
+
+
+                            <div class="recording">
+                                ● REC
+                            </div>
+
+
+                            <span>
+                                Transmisión en vivo
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+
         </div>
-      </div>
 
     </div>
 
-    <!-- HISTORIAL -->
+
+
+    <!-- =========================
+         HISTORIAL
+    ========================== -->
+
     <div class="card history">
-      <h2>Registro de accesos y eventos</h2>
-      <div id="history">
-        <div class="event">
-          <span>📡 Sistema de oficina iniciado</span>
-          <span class="event-time">Ahora</span>
+
+        <h2>
+            Registro de accesos y eventos
+        </h2>
+
+
+        <div id="history">
+
+            <div class="event">
+
+                <span>
+                    📡 Sistema de oficina iniciado
+                </span>
+
+                <span class="event-time">
+                    Ahora
+                </span>
+
+            </div>
+
         </div>
-      </div>
+
     </div>
 
-    <footer>Office Control · Sistema domótico para oficinas</footer>
 
-  </div>
 
-  <script src="oficinajs.js"></script>
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        {{ entorno.nombre }}
+
+        · Sistema domótico para oficinas
+
+    </footer>
+
+
+</div>
+
+
+<script src="{{ url_for('static', filename='oficinajs.js') }}"></script>
+
 </body>
+
 </html>

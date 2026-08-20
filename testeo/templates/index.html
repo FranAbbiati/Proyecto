@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel IoT Raspberry Pi</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f9; margin-top: 50px; }
+        .card { background: white; padding: 20px; margin: 15px auto; width: 300px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); display: inline-block; vertical-align: top;}
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; color: white; }
+        .btn-on { background-color: #28a745; }
+        .btn-off { background-color: #dc3545; }
+        .data { font-size: 24px; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+
+    <h1>Panel de Control Raspberry Pi</h1>
+
+    <!-- Control LED -->
+    <div class="card">
+        <h3>Control LED</h3>
+        <button class="btn-on" onclick="fetch('/led/on')">Encender</button>
+        <button class="btn-off" onclick="fetch('/led/off')">Apagar</button>
+    </div>
+
+    <!-- Control Alarma -->
+    <div class="card">
+        <h3>Alarma / Buzzer</h3>
+        <button class="btn-on" onclick="fetch('/alarma/on')">Activar</button>
+        <button class="btn-off" onclick="fetch('/alarma/off')">Desactivar</button>
+    </div>
+
+    <!-- Sensor DHT11 -->
+    <div class="card">
+        <h3>Sensor Ambiental</h3>
+        <p>Temp: <span id="temp" class="data">--</span> °C</p>
+        <p>Humedad: <span id="hum" class="data">--</span> %</p>
+    </div>
+
+    <script>
+        function actualizarSensor() {
+            fetch('/sensor')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.error) {
+                        document.getElementById('temp').innerText = data.temperatura;
+                        document.getElementById('hum').innerText = data.humedad;
+                    }
+                });
+        }
+        // Actualizar datos del sensor cada 3 segundos
+        setInterval(actualizarSensor, 3000);
+    </script>
+</body>
+</html>

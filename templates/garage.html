@@ -1,93 +1,478 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garage Control</title>
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='garagecss.css') }}"
->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Garage Control</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='garagecss.css') }}"
+    >
+
 </head>
+
 
 <body>
 
-  <div class="container">
+
+<div class="container">
+
+
+    <!-- ==========================================
+         ENCABEZADO
+    ========================================== -->
 
     <header>
-      <div class="logo">
-        <div class="logo-icon" style="background: #2563eb;">🚗</div>
-        <div>
-          <h1>Garage Control</h1>
-          <small style="color:#94a3b8;">Panel de control remoto</small>
-        </div>
-      </div>
 
-      <div class="connection">
-        <span class="dot" id="connectionDot"></span>
-        <span id="connectionText">Verificando...</span>
-      </div>
+        <div class="logo">
+
+            <div
+                class="logo-icon"
+                style="background: #2563eb;"
+            >
+                🚗
+            </div>
+
+            <div>
+
+                <h1>
+                    Garage Control
+                </h1>
+
+                <small style="color:#94a3b8;">
+                    Panel de control remoto
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-derecha">
+
+            <div class="connection">
+
+                <span
+                    class="dot"
+                    id="connectionDot"
+                ></span>
+
+                <span id="connectionText">
+                    Verificando...
+                </span>
+
+            </div>
+
+            <a
+                href="{{ url_for('index') }}"
+                class="boton-volver"
+            >
+                Mis entornos
+            </a>
+
+        </div>
+
     </header>
+
+
+
+    <!-- ==========================================
+         CONTENIDO PRINCIPAL
+    ========================================== -->
 
     <div class="grid">
 
-      <!-- CONTROL PRINCIPAL -->
-      <div class="card garage-card" style="text-align: center;">
-        <div class="garage-icon" id="garageIcon" style="font-size: 90px; margin: 15px 0;">🚪</div>
-        <div class="status" id="garageStatus" style="font-size: 28px; font-weight: bold; margin-bottom: 8px;">Cerrado</div>
-        <div class="substatus" id="garageSubstatus" style="color: #94a3b8; margin-bottom: 25px;">El portón está asegurado</div>
 
-        <button class="main-button" id="garageButton" onclick="toggleGarage()" style="background: #2563eb;">
-          ABRIR PORTÓN
-        </button>
+        <!-- ======================================
+             CONTROLES DEL GARAGE
+        ====================================== -->
 
-        <div class="controls">
-          <button class="control-button" id="lightButton" onclick="toggleLight()">💡 Luz</button>
-          <button class="control-button" id="alarmButton" onclick="toggleAlarm()">🔔 Alarma</button>
-          <button class="control-button" onclick="refreshStatus()">🔄 Actualizar</button>
-          <button class="control-button" onclick="lockGarage()">🔒 Bloquear</button>
+        <div class="card garage-card">
+
+
+            <!-- ==================================
+                 PORTÓN
+            ================================== -->
+
+            {% for dispositivo in dispositivos %}
+
+                {% if dispositivo["tipo"] == "porton" %}
+
+                    <div
+                        class="garage-icon"
+                        id="garageIcon"
+                    >
+                        🚪
+                    </div>
+
+                    <div
+                        class="status"
+                        id="garageStatus"
+                    >
+                        Cerrado
+                    </div>
+
+                    <div
+                        class="substatus"
+                        id="garageSubstatus"
+                    >
+                        El portón está asegurado
+                    </div>
+
+                    <button
+                        class="main-button"
+                        id="garageButton"
+                        onclick="toggleGarage()"
+                    >
+                        ABRIR PORTÓN
+                    </button>
+
+                {% endif %}
+
+            {% endfor %}
+
+
+
+            <!-- ==================================
+                 BOTONES DE CONTROL
+            ================================== -->
+
+            <div class="controls">
+
+
+                {% for dispositivo in dispositivos %}
+
+
+                    <!-- ILUMINACIÓN -->
+
+                    {% if dispositivo["tipo"] == "iluminacion" %}
+
+                        <button
+                            class="control-button"
+                            id="lightButton"
+                            onclick="toggleLight()"
+                        >
+                            💡 Luz
+                        </button>
+
+                    {% endif %}
+
+
+
+                    <!-- ALARMA -->
+
+                    {% if dispositivo["tipo"] == "alarma" %}
+
+                        <button
+                            class="control-button"
+                            id="alarmButton"
+                            onclick="toggleAlarm()"
+                        >
+                            🔔 Alarma
+                        </button>
+
+                    {% endif %}
+
+
+                {% endfor %}
+
+
+
+                <!-- ACTUALIZAR -->
+
+                <button
+                    class="control-button"
+                    onclick="refreshStatus()"
+                >
+                    🔄 Actualizar
+                </button>
+
+
+
+                <!-- BLOQUEAR -->
+
+                {% for dispositivo in dispositivos %}
+
+                    {% if dispositivo["tipo"] == "porton" %}
+
+                        <button
+                            class="control-button"
+                            onclick="lockGarage()"
+                        >
+                            🔒 Bloquear
+                        </button>
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+            </div>
+
+
         </div>
-      </div>
 
-      <!-- INFORMACIÓN -->
-      <div>
-        <div class="card">
-          <h2>Estado del sistema</h2>
-          <div class="info">
-            <div class="info-box"><small>Humedad</small><strong id="humidityVal">--%</strong></div>
-            <div class="info-box"><small>Señal Wi-Fi</small><strong>Excelente</strong></div>
-            <div class="info-box"><small>Temperatura</small><strong id="tempVal">-- °C</strong></div>
-            <div class="info-box"><small>Última actualización</small><strong id="lastUpdate">Ahora</strong></div>
-          </div>
+
+
+        <!-- ======================================
+             INFORMACIÓN
+        ====================================== -->
+
+        <div>
+
+
+            <div class="card">
+
+                <h2>
+                    Estado del sistema
+                </h2>
+
+
+                <div class="info">
+
+
+                    <!-- TEMPERATURA -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "temperatura" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    Temperatura
+                                </small>
+
+                                <strong id="tempVal">
+                                    -- °C
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- HUMEDAD -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "humedad" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    Humedad
+                                </small>
+
+                                <strong id="humidityVal">
+                                    --%
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- MOVIMIENTO -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "movimiento" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    Movimiento
+                                </small>
+
+                                <strong id="movementVal">
+                                    No detectado
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- VENTILACIÓN -->
+
+                    {% for dispositivo in dispositivos %}
+
+                        {% if dispositivo["tipo"] == "ventilacion" %}
+
+                            <div class="info-box">
+
+                                <small>
+                                    Ventilación
+                                </small>
+
+                                <strong id="ventilationVal">
+                                    Apagada
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+
+                    <!-- SEÑAL WI-FI -->
+
+                    <div class="info-box">
+
+                        <small>
+                            Señal Wi-Fi
+                        </small>
+
+                        <strong>
+                            Excelente
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- ÚLTIMA ACTUALIZACIÓN -->
+
+                    <div class="info-box">
+
+                        <small>
+                            Última actualización
+                        </small>
+
+                        <strong id="lastUpdate">
+                            Ahora
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================
+                 CÁMARA
+            ================================== -->
+
+            {% for dispositivo in dispositivos %}
+
+                {% if dispositivo["tipo"] == "camara" %}
+
+                    <div
+                        class="card"
+                        style="margin-top:20px;"
+                    >
+
+                        <h2>
+                            📹 Cámara del garage
+                        </h2>
+
+                        <div class="camera">
+
+                            <div class="camera-label">
+                                CAMERA 01
+                            </div>
+
+                            <div class="recording">
+                                ● LIVE
+                            </div>
+
+                            <span>
+                                Vista de cámara
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+
         </div>
 
-        <div class="card" style="margin-top:20px;">
-          <h2>📹 Cámara del garage</h2>
-          <div class="camera">
-            <div class="camera-label">CAMERA 01</div>
-            <div class="recording">● LIVE</div>
-            <span>Vista de cámara</span>
-          </div>
-        </div>
-      </div>
 
     </div>
 
-    <!-- HISTORIAL -->
+
+
+    <!-- ==========================================
+         HISTORIAL
+    ========================================== -->
+
     <div class="card history">
-      <h2>Actividad reciente</h2>
-      <div id="history">
-        <div class="event">
-          <span>📡 Sistema iniciado</span>
-          <span class="event-time">Ahora</span>
+
+        <h2>
+            Actividad reciente
+        </h2>
+
+        <div id="history">
+
+            <div class="event">
+
+                <span>
+                    📡 Sistema iniciado
+                </span>
+
+                <span class="event-time">
+                    Ahora
+                </span>
+
+            </div>
+
         </div>
-      </div>
+
     </div>
 
-    <footer>Garage Control · Sistema de control remoto</footer>
 
-  </div>
 
-  <script src="garagejs.js"></script>
+    <!-- ==========================================
+         FOOTER
+    ========================================== -->
+
+    <footer>
+
+        Garage Control · Sistema de control remoto
+
+    </footer>
+
+
+</div>
+
+
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+
+<script
+    src="{{ url_for('static', filename='javascript/garagejs.js') }}"
+></script>
+
+
 </body>
+
 </html>

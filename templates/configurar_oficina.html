@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurar Oficina</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='configurar_oficina.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header class="encabezado">
+
+        <div class="logo">
+
+            <span class="logo-punto"></span>
+
+            <h1>
+                Centro de Automatización
+            </h1>
+
+        </div>
+
+        <div class="usuario">
+
+            <span>
+                {{ usuario }}
+            </span>
+
+            <a href="{{ url_for('index') }}">
+                Volver
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="introduccion">
+
+            <span class="etiqueta">
+                OFICINA
+            </span>
+
+            <h2>
+                Configurá tu oficina
+            </h2>
+
+            <p>
+                Elegí qué dispositivos y sistemas
+                querés controlar desde el panel.
+            </p>
+
+        </section>
+
+
+        <form
+            action="{{ url_for('guardar_oficina') }}"
+            method="POST"
+            class="formulario"
+        >
+
+            <section class="dispositivos">
+
+                <!-- TEMPERATURA -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="temperatura"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            🌡️ Temperatura
+                        </strong>
+
+                        <small>
+                            Monitorear la temperatura de la oficina.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <!-- HUMEDAD -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="humedad"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            💧 Humedad
+                        </strong>
+
+                        <small>
+                            Controlar el nivel de humedad.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <!-- MOVIMIENTO -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="movimiento"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            🚶 Movimiento
+                        </strong>
+
+                        <small>
+                            Detectar movimiento dentro de la oficina.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <!-- ILUMINACIÓN -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="iluminacion"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            💡 Iluminación
+                        </strong>
+
+                        <small>
+                            Controlar las luces de la oficina.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <!-- ALARMA -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="alarma"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            🚨 Alarma
+                        </strong>
+
+                        <small>
+                            Sistema de seguridad y alertas.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <!-- VENTILACIÓN -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="ventilacion"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            🌬️ Ventilación
+                        </strong>
+
+                        <small>
+                            Controlar la ventilación.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <!-- CÁMARA -->
+
+                <label class="dispositivo">
+
+                    <input
+                        type="checkbox"
+                        name="camara"
+                    >
+
+                    <span class="check"></span>
+
+                    <span class="contenido">
+
+                        <strong>
+                            📹 Cámara
+                        </strong>
+
+                        <small>
+                            Visualizar la cámara de la oficina.
+                        </small>
+
+                    </span>
+
+                </label>
+
+            </section>
+
+
+            <div class="acciones">
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="boton-secundario"
+                >
+                    Cancelar
+                </a>
+
+                <button
+                    type="submit"
+                    class="boton"
+                >
+                    Guardar configuración
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+
+    <footer>
+
+        <span>
+            Centro de Automatización
+        </span>
+
+        <span class="estado">
+            ● Sistema conectado
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

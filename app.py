@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
+from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-
 
 app = Flask(__name__)
 
@@ -11,7 +11,24 @@ app = Flask(__name__)
 
 app.secret_key = "clave-secreta-del-proyecto"
 
+# ==========================================
+# PROTECCIÓN DE LOGIN
+# ==========================================
 
+def login_requerido(func):
+
+    @wraps(func)
+    def decorador(*args, **kwargs):
+
+        if "usuario_id" not in session:
+
+            return redirect(
+                url_for("iniciar_sesion")
+            )
+
+        return func(*args, **kwargs)
+
+    return decorador
 # ==========================================
 # BASE DE DATOS
 # ==========================================
@@ -266,7 +283,28 @@ def obtener_dispositivos(espacio_id):
 
     return dispositivos
 
+# ==========================================
+# OBTENER ESPACIO GENERAL DE UN ENTORNO
+# ==========================================
 
+def obtener_espacio_general(entorno_id):
+
+    conexion = conectar_db()
+
+    espacio = conexion.execute(
+        """
+        SELECT *
+        FROM espacios
+        WHERE entorno_id = ?
+        AND tipo = 'general'
+        LIMIT 1
+        """,
+        (entorno_id,)
+    ).fetchone()
+
+    conexion.close()
+
+    return espacio
 # ==========================================
 # INICIO DE SESIÓN
 # ==========================================
@@ -447,13 +485,8 @@ def login():
 # ==========================================
 
 @app.route("/index")
+@login_requerido
 def index():
-
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     conexion = conectar_db()
 
@@ -474,19 +507,13 @@ def index():
         usuario=session["usuario"],
         entornos=entornos
     )
-
 # ==========================================
 # CREAR ENTORNO
 # ==========================================
 
 @app.route("/crear-entorno")
+@login_requerido
 def crear_entorno():
-
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     return render_template(
         "crear_entorno.html",
@@ -499,13 +526,8 @@ def crear_entorno():
 # ==========================================
 
 @app.route("/casa")
+@login_requerido
 def casa():
-
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     # Buscar si el usuario ya tiene una casa guardada
 
@@ -570,6 +592,7 @@ def casa():
     "/casa/habitaciones",
     methods=["POST"]
 )
+@login_requerido
 def configurar_habitaciones():
 
     if "usuario_id" not in session:
@@ -615,6 +638,7 @@ def configurar_habitaciones():
     "/casa/dispositivos",
     methods=["POST"]
 )
+@login_requerido
 def configurar_dispositivos():
 
     if "usuario_id" not in session:
@@ -657,11 +681,6 @@ def configurar_dispositivos():
         habitaciones=habitaciones
     )
 
-
-# ==========================================
-# FINALIZAR CASA
-# ==========================================
-
 # ==========================================
 # FINALIZAR Y GUARDAR CASA
 # ==========================================
@@ -670,6 +689,7 @@ def configurar_dispositivos():
     "/crear-entorno/finalizar",
     methods=["POST"]
 )
+@login_requerido
 def finalizar_entorno():
 
     if "usuario_id" not in session:
@@ -789,13 +809,8 @@ def finalizar_entorno():
 # ==========================================
 
 @app.route("/colegio")
+@login_requerido
 def colegio():
-
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     # --------------------------------------
     # BUSCAR COLEGIO DEL USUARIO
@@ -861,8 +876,8 @@ def colegio():
     "/colegio/configurar",
     methods=["POST"]
 )
+@login_requerido
 def configurar_colegio():
-
     if "usuario_id" not in session:
 
         return redirect(
@@ -904,6 +919,7 @@ def configurar_colegio():
     "/colegio/espacios",
     methods=["POST"]
 )
+@login_requerido
 def configurar_espacios_colegio():
 
     if "usuario_id" not in session:
@@ -997,6 +1013,7 @@ def configurar_espacios_colegio():
     "/colegio/guardar",
     methods=["POST"]
 )
+@login_requerido
 def guardar_colegio():
 
     if "usuario_id" not in session:
@@ -1185,49 +1202,317 @@ def guardar_colegio():
     )
 
 
-# ==========================================
+## ==========================================
 # OFICINA
 # ==========================================
 
 @app.route("/oficina")
+@login_requerido
 def oficina():
 
+    usuario_id = session["usuario_id"]
+
+    # --------------------------------------
+    # BUSCAR OFICINA GUARDADA
+    # --------------------------------------
+
+    entorno = obtener_entorno(
+        usuario_id,
+        "oficina"
+    )
+
+    # --------------------------------------
+    # SI NO EXISTE
+    # --------------------------------------
+
+    if entorno is None:
+
+        return render_template(
+            "configurar_oficina.html",
+            usuario=session["usuario"]
+        )
+
+    # --------------------------------------
+    # BUSCAR ESPACIO GENERAL
+    # --------------------------------------
+
+    espacio = obtener_espacio_general(
+        entorno["id"]
+    )
+
+    # --------------------------------------
+    # OBTENER DISPOSITIVOS
+    # --------------------------------------
+
+    dispositivos = []
+
+    if espacio:
+
+        dispositivos = obtener_dispositivos(
+            espacio["id"]
+        )
+
+    # --------------------------------------
+    # MOSTRAR PANEL
+    # --------------------------------------
+
+    return render_template(
+        "oficina.html",
+        usuario=session["usuario"],
+        entorno=entorno,
+        dispositivos=dispositivos
+    )
+
+
+# ==========================================
+# GUARDAR CONFIGURACIÓN DE OFICINA
+# ==========================================
+
+@app.route(
+    "/oficina/guardar",
+    methods=["POST"]
+)
+@login_requerido
+def guardar_oficina():
     if "usuario_id" not in session:
 
         return redirect(
             url_for("iniciar_sesion")
         )
 
-    return render_template(
-        "oficina.html",
-        usuario=session["usuario"]
+    usuario_id = session["usuario_id"]
+
+    # --------------------------------------
+    # EVITAR DUPLICADOS
+    # --------------------------------------
+
+    oficina_existente = obtener_entorno(
+        usuario_id,
+        "oficina"
     )
 
+    if oficina_existente:
+
+        return redirect(
+            url_for("oficina")
+        )
+
+    # --------------------------------------
+    # CREAR ENTORNO
+    # --------------------------------------
+
+    entorno_id = crear_entorno_db(
+        usuario_id,
+        "Oficina",
+        "oficina"
+    )
+
+    # --------------------------------------
+    # CREAR ESPACIO GENERAL
+    # --------------------------------------
+
+    espacio_id = crear_espacio_db(
+        entorno_id,
+        "Oficina",
+        "general"
+    )
+
+    # --------------------------------------
+    # DISPOSITIVOS DISPONIBLES
+    # --------------------------------------
+
+    dispositivos_disponibles = [
+
+        "temperatura",
+        "humedad",
+        "movimiento",
+        "iluminacion",
+        "alarma",
+        "ventilacion",
+        "camara"
+
+    ]
+
+    # --------------------------------------
+    # GUARDAR LOS SELECCIONADOS
+    # --------------------------------------
+
+    for dispositivo in dispositivos_disponibles:
+
+        if request.form.get(dispositivo):
+
+            crear_dispositivo_db(
+                espacio_id,
+                dispositivo
+            )
+
+    # --------------------------------------
+    # VOLVER AL PANEL
+    # --------------------------------------
+
+    return redirect(
+        url_for("oficina")
+    )
 
 # ==========================================
 # GARAGE
 # ==========================================
 
 @app.route("/garage")
+@login_requerido
 def garage():
 
+    usuario_id = session["usuario_id"]
+
+    # --------------------------------------
+    # BUSCAR GARAGE GUARDADO
+    # --------------------------------------
+
+    entorno = obtener_entorno(
+        usuario_id,
+        "garage"
+    )
+
+    # --------------------------------------
+    # SI NO EXISTE
+    # --------------------------------------
+
+    if entorno is None:
+
+        return render_template(
+            "configurar_garage.html",
+            usuario=session["usuario"]
+        )
+
+    # --------------------------------------
+    # BUSCAR ESPACIO GENERAL
+    # --------------------------------------
+
+    espacio = obtener_espacio_general(
+        entorno["id"]
+    )
+
+    # --------------------------------------
+    # OBTENER DISPOSITIVOS
+    # --------------------------------------
+
+    dispositivos = []
+
+    if espacio:
+
+        dispositivos = obtener_dispositivos(
+            espacio["id"]
+        )
+
+    # --------------------------------------
+    # MOSTRAR PANEL
+    # --------------------------------------
+
+    return render_template(
+        "garage.html",
+        usuario=session["usuario"],
+        entorno=entorno,
+        dispositivos=dispositivos
+    )
+
+
+# ==========================================
+# GUARDAR CONFIGURACIÓN DE GARAGE
+# ==========================================
+
+@app.route(
+    "/garage/guardar",
+    methods=["POST"]
+)
+@login_requerido
+def guardar_garage():
     if "usuario_id" not in session:
 
         return redirect(
             url_for("iniciar_sesion")
         )
 
-    return render_template(
-        "garage.html",
-        usuario=session["usuario"]
+    usuario_id = session["usuario_id"]
+
+    # --------------------------------------
+    # EVITAR DUPLICADOS
+    # --------------------------------------
+
+    garage_existente = obtener_entorno(
+        usuario_id,
+        "garage"
     )
 
+    if garage_existente:
+
+        return redirect(
+            url_for("garage")
+        )
+
+    # --------------------------------------
+    # CREAR ENTORNO
+    # --------------------------------------
+
+    entorno_id = crear_entorno_db(
+        usuario_id,
+        "Garage",
+        "garage"
+    )
+
+    # --------------------------------------
+    # CREAR ESPACIO GENERAL
+    # --------------------------------------
+
+    espacio_id = crear_espacio_db(
+        entorno_id,
+        "Garage",
+        "general"
+    )
+
+    # --------------------------------------
+    # DISPOSITIVOS DISPONIBLES
+    # --------------------------------------
+
+    dispositivos_disponibles = [
+
+        "porton",
+        "temperatura",
+        "humedad",
+        "movimiento",
+        "iluminacion",
+        "alarma",
+        "ventilacion",
+        "camara"
+
+    ]
+
+    # --------------------------------------
+    # GUARDAR LOS SELECCIONADOS
+    # --------------------------------------
+
+    for dispositivo in dispositivos_disponibles:
+
+        if request.form.get(dispositivo):
+
+            crear_dispositivo_db(
+                espacio_id,
+                dispositivo
+            )
+
+    # --------------------------------------
+    # VOLVER AL PANEL
+    # --------------------------------------
+
+    return redirect(
+        url_for("garage")
+    )
 
 # ==========================================
 # CERRAR SESIÓN
 # ==========================================
 
 @app.route("/logout")
+@login_requerido
 def logout():
 
     session.clear()
