@@ -1,167 +1,390 @@
-const RASPBERRY_IP = 'http://192.168.1.100:5000';
-
 let doorUnlocked = false;
 let lightOn = false;
 let alarmOn = false;
 let acOn = false;
 
+
+/* ==========================================
+   HORA
+========================================== */
+
 function getTime() {
-  return new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+
+    return new Date().toLocaleTimeString(
+        "es-AR",
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
 }
+
+
+/* ==========================================
+   HISTORIAL
+========================================== */
 
 function addHistory(text) {
-  const history = document.getElementById("history");
-  const event = document.createElement("div");
-  event.className = "event";
-  event.innerHTML = `<span>${text}</span><span class="event-time">${getTime()}</span>`;
-  history.prepend(event);
+
+    const history =
+        document.getElementById("history");
+
+    if (!history) return;
+
+    const event =
+        document.createElement("div");
+
+    event.className = "event";
+
+    event.innerHTML = `
+        <span>${text}</span>
+        <span class="event-time">
+            ${getTime()}
+        </span>
+    `;
+
+    history.prepend(event);
 }
+
+
+/* ==========================================
+   ESTADO DE CONEXIÓN
+========================================== */
+
+function conexionCorrecta() {
+
+    const dot =
+        document.getElementById("connectionDot");
+
+    const text =
+        document.getElementById("connectionText");
+
+
+    if (dot) {
+
+        dot.style.background =
+            "#22c55e";
+
+        dot.style.boxShadow =
+            "0 0 10px #22c55e";
+
+    }
+
+
+    if (text) {
+
+        text.textContent =
+            "Dispositivo conectado";
+
+    }
+}
+
+
+function conexionError() {
+
+    const dot =
+        document.getElementById("connectionDot");
+
+    const text =
+        document.getElementById("connectionText");
+
+
+    if (dot) {
+
+        dot.style.background =
+            "#ef4444";
+
+        dot.style.boxShadow =
+            "0 0 10px #ef4444";
+
+    }
+
+
+    if (text) {
+
+        text.textContent =
+            "Desconectado";
+
+    }
+}
+
+
+/* ==========================================
+   COMUNICACIÓN CON FLASK
+========================================== */
 
 async function sendCommand(endpoint) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-  try {
-    const response = await fetch(`${RASPBERRY_IP}/${endpoint}`, {
-      method: 'GET',
-      mode: 'cors',
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    if (!response.ok) throw new Error('Respuesta fallida');
-    return true;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    alert("⚠️ Dispositivo desconectado. No se pudo establecer comunicación con la Raspberry Pi.");
-    addHistory("❌ Error: Sin conexión con Raspberry");
-    document.getElementById("connectionDot").style.background = "#ef4444";
-    document.getElementById("connectionDot").style.boxShadow = "0 0 10px #ef4444";
-    document.getElementById("connectionText").textContent = "Desconectado";
-    return false;
-  }
+    try {
+
+        const response =
+            await fetch(`/${endpoint}`);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Respuesta incorrecta"
+            );
+
+        }
+
+
+        conexionCorrecta();
+
+        return true;
+
+
+    } catch (error) {
+
+        conexionError();
+
+        addHistory(
+            "❌ Error de conexión con Raspberry"
+        );
+
+        alert(
+            "⚠️ No se pudo comunicar con la Raspberry Pi."
+        );
+
+        return false;
+    }
 }
+
+
+/* ==========================================
+   PUERTA
+========================================== */
 
 async function toggleDoor() {
-  const targetState = !doorUnlocked;
-  const endpoint = targetState ? 'puerta/desbloquear' : 'puerta/bloquear';
-  const success = await sendCommand(endpoint);
-  if (!success) return;
 
-  doorUnlocked = targetState;
-  const status = document.getElementById("officeStatus");
-  const substatus = document.getElementById("officeSubstatus");
-  const button = document.getElementById("officeButton");
-  const icon = document.getElementById("officeIcon");
+    addHistory(
+        "⚠️ Puerta todavía no conectada al hardware"
+    );
 
-  if (doorUnlocked) {
-    status.textContent = "Desbloqueada";
-    status.style.color = "#22c55e";
-    substatus.textContent = "Puerta abierta / Acceso libre";
-    button.textContent = "BLOQUEAR PUERTA";
-    button.classList.add("close");
-    icon.textContent = "📂";
-    addHistory("🔓 Puerta de oficina desbloqueada");
-  } else {
-    status.textContent = "Bloqueada";
-    status.style.color = "#f8fafc";
-    substatus.textContent = "Acceso de oficina seguro";
-    button.textContent = "DESBLOQUEAR PUERTA";
-    button.classList.remove("close");
-    icon.textContent = "🚪";
-    addHistory("🔒 Puerta de oficina bloqueada");
-  }
-  updateTime();
+    alert(
+        "La puerta todavía no está conectada a la Raspberry Pi."
+    );
 }
+
+
+/* ==========================================
+   ILUMINACIÓN
+========================================== */
 
 async function toggleLight() {
-  const targetState = !lightOn;
-  const endpoint = targetState ? 'luces/encender' : 'luces/apagar';
-  const success = await sendCommand(endpoint);
-  if (!success) return;
 
-  lightOn = targetState;
-  const button = document.getElementById("lightButton");
-  if (lightOn) {
-    button.classList.add("active");
-    button.textContent = "💡 Luces encendidas";
-    addHistory("💡 Luces de oficina encendidas");
-  } else {
-    button.classList.remove("active");
-    button.textContent = "💡 Luces";
-    addHistory("🌑 Luces de oficina apagadas");
-  }
-  updateTime();
+    addHistory(
+        "⚠️ Iluminación todavía no conectada al hardware"
+    );
+
+    alert(
+        "La iluminación todavía no está conectada a la Raspberry Pi."
+    );
 }
+
+
+/* ==========================================
+   ALARMA
+========================================== */
 
 async function toggleAlarm() {
-  const targetState = !alarmOn;
-  const endpoint = targetState ? 'alarma/activar' : 'alarma/desactivar';
-  const success = await sendCommand(endpoint);
-  if (!success) return;
 
-  alarmOn = targetState;
-  const button = document.getElementById("alarmButton");
-  if (alarmOn) {
-    button.classList.add("active");
-    button.textContent = "🚨 Alarma activa";
-    addHistory("🚨 Alarma de seguridad activada");
-  } else {
-    button.classList.remove("active");
-    button.textContent = "🚨 Alarma";
-    addHistory("🔕 Alarma de seguridad desactivada");
-  }
-  updateTime();
+    const targetState =
+        !alarmOn;
+
+
+    const endpoint =
+        targetState
+            ? "alarma/on"
+            : "alarma/off";
+
+
+    const success =
+        await sendCommand(endpoint);
+
+
+    if (!success) return;
+
+
+    alarmOn =
+        targetState;
+
+
+    const button =
+        document.getElementById(
+            "alarmButton"
+        );
+
+
+    if (alarmOn) {
+
+        if (button) {
+
+            button.classList.add(
+                "active"
+            );
+
+            button.textContent =
+                "🚨 Alarma activa";
+
+        }
+
+        addHistory(
+            "🚨 Alarma de oficina activada"
+        );
+
+
+    } else {
+
+        if (button) {
+
+            button.classList.remove(
+                "active"
+            );
+
+            button.textContent =
+                "🚨 Alarma";
+
+        }
+
+        addHistory(
+            "🔕 Alarma de oficina desactivada"
+        );
+    }
+
+
+    updateTime();
 }
+
+
+/* ==========================================
+   CLIMA
+========================================== */
 
 async function toggleAC() {
-  const targetState = !acOn;
-  const endpoint = targetState ? 'ac/encender' : 'ac/apagar';
-  const success = await sendCommand(endpoint);
-  if (!success) return;
 
-  acOn = targetState;
-  const button = document.getElementById("acButton");
-  if (acOn) {
-    button.classList.add("active");
-    button.textContent = "❄️ AC encendido";
-    addHistory("❄️ Climatización encendida");
-  } else {
-    button.classList.remove("active");
-    button.textContent = "❄️ Clima (AC)";
-    addHistory("🛑 Climatización apagada");
-  }
-  updateTime();
+    addHistory(
+        "⚠️ Climatización todavía no conectada al hardware"
+    );
+
+    alert(
+        "La climatización todavía no está conectada a la Raspberry Pi."
+    );
 }
+
+
+/* ==========================================
+   SENSOR DHT11
+========================================== */
 
 async function refreshStatus() {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-  try {
-    const response = await fetch(`${RASPBERRY_IP}/estado`, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    if (!response.ok) throw new Error("Error al obtener estado");
-    
-    const data = await response.json();
-    document.getElementById("humidityVal").textContent = data.humedad + "%";
-    document.getElementById("tempVal").textContent = data.temperatura + " °C";
+    try {
 
-    document.getElementById("connectionDot").style.background = "#22c55e";
-    document.getElementById("connectionDot").style.boxShadow = "0 0 10px #22c55e";
-    document.getElementById("connectionText").textContent = "Dispositivo conectado";
-    addHistory("🔄 Estado de oficina actualizado");
-  } catch (error) {
-    clearTimeout(timeoutId);
-    document.getElementById("connectionDot").style.background = "#ef4444";
-    document.getElementById("connectionDot").style.boxShadow = "0 0 10px #ef4444";
-    document.getElementById("connectionText").textContent = "Desconectado";
-    addHistory("❌ Error de conexión al actualizar");
-  }
-  updateTime();
+        const response =
+            await fetch("/sensor");
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "No se pudo leer el sensor"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (data.error) {
+
+            throw new Error(
+                data.error
+            );
+
+        }
+
+
+        const temperatura =
+            document.getElementById(
+                "tempVal"
+            );
+
+
+        const humedad =
+            document.getElementById(
+                "humidityVal"
+            );
+
+
+        if (temperatura) {
+
+            temperatura.textContent =
+                data.temperatura + " °C";
+
+        }
+
+
+        if (humedad) {
+
+            humedad.textContent =
+                data.humedad + " %";
+
+        }
+
+
+        conexionCorrecta();
+
+
+        addHistory(
+            "🌡️ Temperatura y humedad actualizadas"
+        );
+
+
+        updateTime();
+
+
+    } catch (error) {
+
+        conexionError();
+
+        addHistory(
+            "❌ Error al leer DHT11"
+        );
+
+    }
 }
+
+
+/* ==========================================
+   ACTUALIZAR HORA
+========================================== */
 
 function updateTime() {
-  document.getElementById("lastUpdate").textContent = getTime();
+
+    const element =
+        document.getElementById(
+            "lastUpdate"
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            getTime();
+
+    }
 }
 
-window.onload = refreshStatus;
+
+/* ==========================================
+   INICIO
+========================================== */
+
+window.addEventListener(
+    "load",
+    refreshStatus
+);

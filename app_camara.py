@@ -1,26 +1,76 @@
+# -*- coding: utf-8 -*-
+
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import sqlite3
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from gpiozero import LED, Buzzer, DHT11
+
+from gpiozero import LED
+import board
+import adafruit_dht
+import cv2
 
 app = Flask(__name__)
+
+
+# ============================================================
+# HARDWARE - RASPBERRY PI
+# ============================================================
+
+# ------------------------------------------------------------
+# RELE DE LA ALARMA
+# GPIO 27 -> RELE -> BATERIA -> ALARMA
+# ------------------------------------------------------------
+
+rele_alarma = LED(27)
+
+# ------------------------------------------------------------
+# ILUMINACION
+# GPIO 17
+# ------------------------------------------------------------
+
+led_iluminacion = LED(17)
+
+# ------------------------------------------------------------
+# SENSOR DHT11
+# GPIO 4
+# ------------------------------------------------------------
+
+sensor_dht = adafruit_dht.DHT11(board.D4)
+
 # ==========================================
-# HARDWARE RASPBERRY PI
+# CAMARA USB - WIDECAM F100
 # ==========================================
 
-led = LED(17)
-alarma = Buzzer(27)
-sensor = DHT11(4)
-# ==========================================
-# CONFIGURACIÓN
-# ==========================================
+camara = cv2.VideoCapture(
+    "/dev/video0",
+    cv2.CAP_V4L2
+)
+
+camara.set(
+    cv2.CAP_PROP_FRAME_WIDTH,
+    1280
+)
+
+camara.set(
+    cv2.CAP_PROP_FRAME_HEIGHT,
+    720
+)
+
+camara.set(
+    cv2.CAP_PROP_FPS,
+    30
+)
+# ============================================================
+# CONFIGURACION
+# ============================================================
 
 app.secret_key = "clave-secreta-del-proyecto"
 
-# ==========================================
-# PROTECCIÓN DE LOGIN
-# ==========================================
+
+# ============================================================
+# PROTECCION DE LOGIN
+# ============================================================
 
 def login_requerido(func):
 
@@ -28,17 +78,16 @@ def login_requerido(func):
     def decorador(*args, **kwargs):
 
         if "usuario_id" not in session:
-
-            return redirect(
-                url_for("iniciar_sesion")
-            )
+            return redirect(url_for("iniciar_sesion"))
 
         return func(*args, **kwargs)
 
     return decorador
-# ==========================================
+
+
+# ============================================================
 # BASE DE DATOS
-# ==========================================
+# ============================================================
 
 def conectar_db():
 
@@ -53,21 +102,21 @@ def crear_base_datos():
 
     conexion = conectar_db()
 
-    # ==========================================
+    # --------------------------------------------------------
     # USUARIOS
-    # ==========================================
+    # --------------------------------------------------------
 
     conexion.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT UNIQUE NOT NULL,
-            contraseña TEXT NOT NULL
+            contrasena TEXT NOT NULL
         )
     """)
 
-    # ==========================================
+    # --------------------------------------------------------
     # ENTORNOS
-    # ==========================================
+    # --------------------------------------------------------
 
     conexion.execute("""
         CREATE TABLE IF NOT EXISTS entornos (
@@ -81,9 +130,9 @@ def crear_base_datos():
         )
     """)
 
-    # ==========================================
+    # --------------------------------------------------------
     # ESPACIOS
-    # ==========================================
+    # --------------------------------------------------------
 
     conexion.execute("""
         CREATE TABLE IF NOT EXISTS espacios (
@@ -97,9 +146,9 @@ def crear_base_datos():
         )
     """)
 
-    # ==========================================
+    # --------------------------------------------------------
     # DISPOSITIVOS
-    # ==========================================
+    # --------------------------------------------------------
 
     conexion.execute("""
         CREATE TABLE IF NOT EXISTS dispositivos (
@@ -118,9 +167,9 @@ def crear_base_datos():
     conexion.close()
 
 
-# ==========================================
+# ============================================================
 # FUNCIONES DE ENTORNOS
-# ==========================================
+# ============================================================
 
 def crear_entorno_db(usuario_id, nombre, tipo):
 
@@ -151,10 +200,6 @@ def crear_entorno_db(usuario_id, nombre, tipo):
     return entorno_id
 
 
-# ==========================================
-# OBTENER ENTORNO DE UN USUARIO
-# ==========================================
-
 def obtener_entorno(usuario_id, tipo):
 
     conexion = conectar_db()
@@ -179,9 +224,9 @@ def obtener_entorno(usuario_id, tipo):
     return entorno
 
 
-# ==========================================
+# ============================================================
 # CREAR ESPACIO
-# ==========================================
+# ============================================================
 
 def crear_espacio_db(entorno_id, nombre, tipo):
 
@@ -212,9 +257,9 @@ def crear_espacio_db(entorno_id, nombre, tipo):
     return espacio_id
 
 
-# ==========================================
+# ============================================================
 # CREAR DISPOSITIVO
-# ==========================================
+# ============================================================
 
 def crear_dispositivo_db(
     espacio_id,
@@ -245,9 +290,9 @@ def crear_dispositivo_db(
     conexion.close()
 
 
-# ==========================================
-# OBTENER ESPACIOS DE UN ENTORNO
-# ==========================================
+# ============================================================
+# OBTENER ESPACIOS
+# ============================================================
 
 def obtener_espacios(entorno_id):
 
@@ -268,9 +313,9 @@ def obtener_espacios(entorno_id):
     return espacios
 
 
-# ==========================================
-# OBTENER DISPOSITIVOS DE UN ESPACIO
-# ==========================================
+# ============================================================
+# OBTENER DISPOSITIVOS
+# ============================================================
 
 def obtener_dispositivos(espacio_id):
 
@@ -290,9 +335,10 @@ def obtener_dispositivos(espacio_id):
 
     return dispositivos
 
-# ==========================================
-# OBTENER ESPACIO GENERAL DE UN ENTORNO
-# ==========================================
+
+# ============================================================
+# OBTENER ESPACIO GENERAL
+# ============================================================
 
 def obtener_espacio_general(entorno_id):
 
@@ -312,9 +358,11 @@ def obtener_espacio_general(entorno_id):
     conexion.close()
 
     return espacio
-# ==========================================
-# INICIO DE SESIÓN
-# ==========================================
+
+
+# ============================================================
+# INICIO DE SESION
+# ============================================================
 
 @app.route("/")
 def iniciar_sesion():
@@ -324,9 +372,9 @@ def iniciar_sesion():
     )
 
 
-# ==========================================
+# ============================================================
 # CREAR CUENTA
-# ==========================================
+# ============================================================
 
 @app.route("/registro", methods=["GET", "POST"])
 def registro():
@@ -335,29 +383,25 @@ def registro():
 
         usuario = request.form["usuario"]
 
-        contraseña = request.form["contrasena"]
+        contrasena = request.form["contrasena"]
 
         confirmar = request.form[
             "confirmar_contrasena"
         ]
 
-        # --------------------------------------
-        # COMPROBAR CONTRASEÑAS
-        # --------------------------------------
+        # ----------------------------------------------------
+        # COMPROBAR CONTRASENAS
+        # ----------------------------------------------------
 
-        if contraseña != confirmar:
+        if contrasena != confirmar:
 
-            return "Las contraseñas no coinciden."
-
-        # --------------------------------------
-        # CONECTAR BASE DE DATOS
-        # --------------------------------------
+            return "Las contrasenas no coinciden."
 
         conexion = conectar_db()
 
-        # --------------------------------------
+        # ----------------------------------------------------
         # COMPROBAR USUARIO EXISTENTE
-        # --------------------------------------
+        # ----------------------------------------------------
 
         usuario_existente = conexion.execute(
             """
@@ -374,39 +418,35 @@ def registro():
 
             return "Ese nombre de usuario ya existe."
 
-        # --------------------------------------
-        # ENCRIPTAR CONTRASEÑA
-        # --------------------------------------
+        # ----------------------------------------------------
+        # ENCRIPTAR CONTRASENA
+        # ----------------------------------------------------
 
-        contraseña_hash = generate_password_hash(
-            contraseña
+        contrasena_hash = generate_password_hash(
+            contrasena
         )
 
-        # --------------------------------------
+        # ----------------------------------------------------
         # GUARDAR USUARIO
-        # --------------------------------------
+        # ----------------------------------------------------
 
         conexion.execute(
             """
             INSERT INTO usuarios (
                 nombre,
-                contraseña
+                contrasena
             )
             VALUES (?, ?)
             """,
             (
                 usuario,
-                contraseña_hash
+                contrasena_hash
             )
         )
 
         conexion.commit()
 
         conexion.close()
-
-        # --------------------------------------
-        # VOLVER AL LOGIN
-        # --------------------------------------
 
         return redirect(
             url_for("iniciar_sesion")
@@ -417,16 +457,16 @@ def registro():
     )
 
 
-# ==========================================
+# ============================================================
 # PROCESAR LOGIN
-# ==========================================
+# ============================================================
 
 @app.route("/login", methods=["POST"])
 def login():
 
     usuario = request.form["usuario"]
 
-    contraseña = request.form["contrasena"]
+    contrasena = request.form["contrasena"]
 
     conexion = conectar_db()
 
@@ -441,9 +481,9 @@ def login():
 
     conexion.close()
 
-    # --------------------------------------
+    # --------------------------------------------------------
     # USUARIO INEXISTENTE
-    # --------------------------------------
+    # --------------------------------------------------------
 
     if datos_usuario is None:
 
@@ -454,42 +494,38 @@ def login():
             usuario=usuario
         )
 
-    # --------------------------------------
-    # CONTRASEÑA INCORRECTA
-    # --------------------------------------
+    # --------------------------------------------------------
+    # CONTRASENA INCORRECTA
+    # --------------------------------------------------------
 
     if not check_password_hash(
-        datos_usuario["contraseña"],
-        contraseña
+        datos_usuario["contrasena"],
+        contrasena
     ):
 
         return render_template(
             "registrohtml.html",
-            error="La contraseña es incorrecta.",
+            error="La contrasena es incorrecta.",
             error_campo="contrasena",
             usuario=usuario
         )
 
-    # --------------------------------------
-    # GUARDAR SESIÓN
-    # --------------------------------------
+    # --------------------------------------------------------
+    # GUARDAR SESION
+    # --------------------------------------------------------
 
     session["usuario_id"] = datos_usuario["id"]
 
     session["usuario"] = datos_usuario["nombre"]
-
-    # --------------------------------------
-    # IR AL CENTRO
-    # --------------------------------------
 
     return redirect(
         url_for("index")
     )
 
 
-# ==========================================
-# PÁGINA PRINCIPAL
-# ==========================================
+# ============================================================
+# PAGINA PRINCIPAL
+# ============================================================
 
 @app.route("/index")
 @login_requerido
@@ -514,9 +550,11 @@ def index():
         usuario=session["usuario"],
         entornos=entornos
     )
-# ==========================================
+
+
+# ============================================================
 # CREAR ENTORNO
-# ==========================================
+# ============================================================
 
 @app.route("/crear-entorno")
 @login_requerido
@@ -528,24 +566,18 @@ def crear_entorno():
     )
 
 
-# ==========================================
+# ============================================================
 # CASA
-# ==========================================
+# ============================================================
 
 @app.route("/casa")
 @login_requerido
 def casa():
 
-    # Buscar si el usuario ya tiene una casa guardada
-
     entorno = obtener_entorno(
         session["usuario_id"],
         "casa"
     )
-
-    # ==========================================
-    # SI YA EXISTE
-    # ==========================================
 
     if entorno:
 
@@ -562,15 +594,10 @@ def casa():
             )
 
             espacios_completos.append({
-
                 "id": espacio["id"],
-
                 "nombre": espacio["nombre"],
-
                 "tipo": espacio["tipo"],
-
                 "dispositivos": dispositivos
-
             })
 
         return render_template(
@@ -582,18 +609,15 @@ def casa():
             habitaciones=espacios_completos
         )
 
-    # ==========================================
-    # SI TODAVÍA NO EXISTE
-    # ==========================================
-
     return render_template(
         "casa.html",
         usuario=session["usuario"]
     )
 
-# ==========================================
+
+# ============================================================
 # CONFIGURAR HABITACIONES DE CASA
-# ==========================================
+# ============================================================
 
 @app.route(
     "/casa/habitaciones",
@@ -601,12 +625,6 @@ def casa():
 )
 @login_requerido
 def configurar_habitaciones():
-
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     nombre_entorno = request.form.get(
         "nombre_entorno"
@@ -637,9 +655,9 @@ def configurar_habitaciones():
     )
 
 
-# ==========================================
+# ============================================================
 # CONFIGURAR DISPOSITIVOS DE CASA
-# ==========================================
+# ============================================================
 
 @app.route(
     "/casa/dispositivos",
@@ -647,12 +665,6 @@ def configurar_habitaciones():
 )
 @login_requerido
 def configurar_dispositivos():
-
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     nombre_entorno = request.form.get(
         "nombre_entorno"
@@ -688,9 +700,10 @@ def configurar_dispositivos():
         habitaciones=habitaciones
     )
 
-# ==========================================
+
+# ============================================================
 # FINALIZAR Y GUARDAR CASA
-# ==========================================
+# ============================================================
 
 @app.route(
     "/crear-entorno/finalizar",
@@ -699,18 +712,7 @@ def configurar_dispositivos():
 @login_requerido
 def finalizar_entorno():
 
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
-
     usuario_id = session["usuario_id"]
-
-
-    # ==========================================
-    # DATOS DEL ENTORNO
-    # ==========================================
 
     nombre_entorno = request.form.get(
         "nombre_entorno"
@@ -723,28 +725,17 @@ def finalizar_entorno():
         )
     )
 
-
     if not nombre_entorno:
 
         return redirect(
             url_for("casa")
         )
 
-
-    # ==========================================
-    # CREAR ENTORNO CASA
-    # ==========================================
-
     entorno_id = crear_entorno_db(
         usuario_id,
         nombre_entorno,
         "casa"
     )
-
-
-    # ==========================================
-    # CREAR HABITACIONES
-    # ==========================================
 
     for numero in range(
         1,
@@ -755,15 +746,11 @@ def finalizar_entorno():
             f"habitacion{numero}"
         )
 
-
         if not nombre_habitacion:
 
             nombre_habitacion = (
-                f"Habitación {numero}"
+                f"Habitacion {numero}"
             )
-
-
-        # Crear habitación
 
         espacio_id = crear_espacio_db(
             entorno_id,
@@ -771,27 +758,12 @@ def finalizar_entorno():
             "habitacion"
         )
 
-
-        # ==========================================
-        # DISPOSITIVOS
-        # ==========================================
-
         dispositivos = {
-
-            "temperatura":
-                f"temperatura_{numero}",
-
-            "iluminacion":
-                f"iluminacion_{numero}",
-
-            "alarma":
-                f"alarma_{numero}",
-
-            "ventilacion":
-                f"ventilacion_{numero}"
-
+            "temperatura": f"temperatura_{numero}",
+            "iluminacion": f"iluminacion_{numero}",
+            "alarma": f"alarma_{numero}",
+            "ventilacion": f"ventilacion_{numero}"
         }
-
 
         for tipo, campo in dispositivos.items():
 
@@ -802,35 +774,23 @@ def finalizar_entorno():
                     tipo
                 )
 
-
-    # ==========================================
-    # VOLVER A CASA
-    # ==========================================
-
     return redirect(
         url_for("casa")
     )
 
-# ==========================================
+
+# ============================================================
 # COLEGIO
-# ==========================================
+# ============================================================
 
 @app.route("/colegio")
 @login_requerido
 def colegio():
 
-    # --------------------------------------
-    # BUSCAR COLEGIO DEL USUARIO
-    # --------------------------------------
-
     entorno = obtener_entorno(
         session["usuario_id"],
         "colegio"
     )
-
-    # --------------------------------------
-    # SI YA EXISTE
-    # --------------------------------------
 
     if entorno:
 
@@ -847,15 +807,10 @@ def colegio():
             )
 
             espacios_completos.append({
-
                 "id": espacio["id"],
-
                 "nombre": espacio["nombre"],
-
                 "tipo": espacio["tipo"],
-
                 "dispositivos": dispositivos
-
             })
 
         return render_template(
@@ -865,19 +820,15 @@ def colegio():
             espacios=espacios_completos
         )
 
-    # --------------------------------------
-    # SI NO EXISTE
-    # --------------------------------------
-
     return render_template(
         "colegio.html",
         usuario=session["usuario"]
     )
 
 
-# ==========================================
+# ============================================================
 # CONFIGURAR COLEGIO
-# ==========================================
+# ============================================================
 
 @app.route(
     "/colegio/configurar",
@@ -885,11 +836,6 @@ def colegio():
 )
 @login_requerido
 def configurar_colegio():
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     nombre_entorno = request.form.get(
         "nombre_entorno"
@@ -918,9 +864,9 @@ def configurar_colegio():
     )
 
 
-# ==========================================
+# ============================================================
 # CONFIGURAR ESPACIOS DEL COLEGIO
-# ==========================================
+# ============================================================
 
 @app.route(
     "/colegio/espacios",
@@ -928,12 +874,6 @@ def configurar_colegio():
 )
 @login_requerido
 def configurar_espacios_colegio():
-
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     nombre_entorno = request.form.get(
         "nombre_entorno"
@@ -966,9 +906,7 @@ def configurar_espacios_colegio():
 
         if not nombre_aula:
 
-            nombre_aula = (
-                f"Aula {numero}"
-            )
+            nombre_aula = f"Aula {numero}"
 
         aulas.append(
             nombre_aula
@@ -988,7 +926,7 @@ def configurar_espacios_colegio():
         if not nombre_espacio:
 
             nombre_espacio = (
-                f"Espacio común {numero}"
+                f"Espacio comun {numero}"
             )
 
         espacios.append(
@@ -997,24 +935,18 @@ def configurar_espacios_colegio():
 
     return render_template(
         "configurar_dispositivos_colegio.html",
-
         usuario=session["usuario"],
-
         nombre_entorno=nombre_entorno,
-
         aulas=aulas,
-
         espacios=espacios,
-
         cantidad_aulas=cantidad_aulas,
-
         cantidad_espacios=cantidad_espacios
     )
 
 
-# ==========================================
+# ============================================================
 # GUARDAR COLEGIO
-# ==========================================
+# ============================================================
 
 @app.route(
     "/colegio/guardar",
@@ -1022,12 +954,6 @@ def configurar_espacios_colegio():
 )
 @login_requerido
 def guardar_colegio():
-
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     usuario_id = session["usuario_id"]
 
@@ -1055,10 +981,6 @@ def guardar_colegio():
             url_for("colegio")
         )
 
-    # ==========================================
-    # EVITAR DUPLICAR EL COLEGIO
-    # ==========================================
-
     colegio_existente = obtener_entorno(
         usuario_id,
         "colegio"
@@ -1070,19 +992,11 @@ def guardar_colegio():
             url_for("colegio")
         )
 
-    # ==========================================
-    # CREAR ENTORNO
-    # ==========================================
-
     entorno_id = crear_entorno_db(
         usuario_id,
         nombre_entorno,
         "colegio"
     )
-
-    # ==========================================
-    # CREAR AULAS
-    # ==========================================
 
     for numero in range(
         1,
@@ -1095,9 +1009,7 @@ def guardar_colegio():
 
         if not nombre_aula:
 
-            nombre_aula = (
-                f"Aula {numero}"
-            )
+            nombre_aula = f"Aula {numero}"
 
         espacio_id = crear_espacio_db(
             entorno_id,
@@ -1105,30 +1017,13 @@ def guardar_colegio():
             "aula"
         )
 
-        # --------------------------------------
-        # DISPOSITIVOS DEL AULA
-        # --------------------------------------
-
         dispositivos = {
-
-            "iluminacion":
-                f"iluminacion_aula_{numero}",
-
-            "temperatura":
-                f"temperatura_aula_{numero}",
-
-            "humedad":
-                f"humedad_aula_{numero}",
-
-            "movimiento":
-                f"movimiento_aula_{numero}",
-
-            "alarma":
-                f"alarma_aula_{numero}",
-
-            "ventilacion":
-                f"ventilacion_aula_{numero}"
-
+            "iluminacion": f"iluminacion_aula_{numero}",
+            "temperatura": f"temperatura_aula_{numero}",
+            "humedad": f"humedad_aula_{numero}",
+            "movimiento": f"movimiento_aula_{numero}",
+            "alarma": f"alarma_aula_{numero}",
+            "ventilacion": f"ventilacion_aula_{numero}"
         }
 
         for tipo, campo in dispositivos.items():
@@ -1139,10 +1034,6 @@ def guardar_colegio():
                     espacio_id,
                     tipo
                 )
-
-    # ==========================================
-    # CREAR ESPACIOS COMUNES
-    # ==========================================
 
     for numero in range(
         1,
@@ -1156,7 +1047,7 @@ def guardar_colegio():
         if not nombre_espacio:
 
             nombre_espacio = (
-                f"Espacio común {numero}"
+                f"Espacio comun {numero}"
             )
 
         espacio_id = crear_espacio_db(
@@ -1165,30 +1056,13 @@ def guardar_colegio():
             "espacio_comun"
         )
 
-        # --------------------------------------
-        # DISPOSITIVOS DEL ESPACIO
-        # --------------------------------------
-
         dispositivos = {
-
-            "iluminacion":
-                f"iluminacion_espacio_{numero}",
-
-            "temperatura":
-                f"temperatura_espacio_{numero}",
-
-            "humedad":
-                f"humedad_espacio_{numero}",
-
-            "movimiento":
-                f"movimiento_espacio_{numero}",
-
-            "alarma":
-                f"alarma_espacio_{numero}",
-
-            "ventilacion":
-                f"ventilacion_espacio_{numero}"
-
+            "iluminacion": f"iluminacion_espacio_{numero}",
+            "temperatura": f"temperatura_espacio_{numero}",
+            "humedad": f"humedad_espacio_{numero}",
+            "movimiento": f"movimiento_espacio_{numero}",
+            "alarma": f"alarma_espacio_{numero}",
+            "ventilacion": f"ventilacion_espacio_{numero}"
         }
 
         for tipo, campo in dispositivos.items():
@@ -1200,18 +1074,14 @@ def guardar_colegio():
                     tipo
                 )
 
-    # ==========================================
-    # VOLVER AL COLEGIO
-    # ==========================================
-
     return redirect(
         url_for("colegio")
     )
 
 
-## ==========================================
+# ============================================================
 # OFICINA
-# ==========================================
+# ============================================================
 
 @app.route("/oficina")
 @login_requerido
@@ -1219,18 +1089,10 @@ def oficina():
 
     usuario_id = session["usuario_id"]
 
-    # --------------------------------------
-    # BUSCAR OFICINA GUARDADA
-    # --------------------------------------
-
     entorno = obtener_entorno(
         usuario_id,
         "oficina"
     )
-
-    # --------------------------------------
-    # SI NO EXISTE
-    # --------------------------------------
 
     if entorno is None:
 
@@ -1239,17 +1101,9 @@ def oficina():
             usuario=session["usuario"]
         )
 
-    # --------------------------------------
-    # BUSCAR ESPACIO GENERAL
-    # --------------------------------------
-
     espacio = obtener_espacio_general(
         entorno["id"]
     )
-
-    # --------------------------------------
-    # OBTENER DISPOSITIVOS
-    # --------------------------------------
 
     dispositivos = []
 
@@ -1259,10 +1113,6 @@ def oficina():
             espacio["id"]
         )
 
-    # --------------------------------------
-    # MOSTRAR PANEL
-    # --------------------------------------
-
     return render_template(
         "oficina.html",
         usuario=session["usuario"],
@@ -1271,9 +1121,9 @@ def oficina():
     )
 
 
-# ==========================================
-# GUARDAR CONFIGURACIÓN DE OFICINA
-# ==========================================
+# ============================================================
+# GUARDAR CONFIGURACION DE OFICINA
+# ============================================================
 
 @app.route(
     "/oficina/guardar",
@@ -1281,17 +1131,8 @@ def oficina():
 )
 @login_requerido
 def guardar_oficina():
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     usuario_id = session["usuario_id"]
-
-    # --------------------------------------
-    # EVITAR DUPLICADOS
-    # --------------------------------------
 
     oficina_existente = obtener_entorno(
         usuario_id,
@@ -1304,19 +1145,11 @@ def guardar_oficina():
             url_for("oficina")
         )
 
-    # --------------------------------------
-    # CREAR ENTORNO
-    # --------------------------------------
-
     entorno_id = crear_entorno_db(
         usuario_id,
         "Oficina",
         "oficina"
     )
-
-    # --------------------------------------
-    # CREAR ESPACIO GENERAL
-    # --------------------------------------
 
     espacio_id = crear_espacio_db(
         entorno_id,
@@ -1324,12 +1157,7 @@ def guardar_oficina():
         "general"
     )
 
-    # --------------------------------------
-    # DISPOSITIVOS DISPONIBLES
-    # --------------------------------------
-
     dispositivos_disponibles = [
-
         "temperatura",
         "humedad",
         "movimiento",
@@ -1337,12 +1165,7 @@ def guardar_oficina():
         "alarma",
         "ventilacion",
         "camara"
-
     ]
-
-    # --------------------------------------
-    # GUARDAR LOS SELECCIONADOS
-    # --------------------------------------
 
     for dispositivo in dispositivos_disponibles:
 
@@ -1353,17 +1176,14 @@ def guardar_oficina():
                 dispositivo
             )
 
-    # --------------------------------------
-    # VOLVER AL PANEL
-    # --------------------------------------
-
     return redirect(
         url_for("oficina")
     )
 
-# ==========================================
+
+# ============================================================
 # GARAGE
-# ==========================================
+# ============================================================
 
 @app.route("/garage")
 @login_requerido
@@ -1371,18 +1191,10 @@ def garage():
 
     usuario_id = session["usuario_id"]
 
-    # --------------------------------------
-    # BUSCAR GARAGE GUARDADO
-    # --------------------------------------
-
     entorno = obtener_entorno(
         usuario_id,
         "garage"
     )
-
-    # --------------------------------------
-    # SI NO EXISTE
-    # --------------------------------------
 
     if entorno is None:
 
@@ -1391,17 +1203,9 @@ def garage():
             usuario=session["usuario"]
         )
 
-    # --------------------------------------
-    # BUSCAR ESPACIO GENERAL
-    # --------------------------------------
-
     espacio = obtener_espacio_general(
         entorno["id"]
     )
-
-    # --------------------------------------
-    # OBTENER DISPOSITIVOS
-    # --------------------------------------
 
     dispositivos = []
 
@@ -1411,10 +1215,6 @@ def garage():
             espacio["id"]
         )
 
-    # --------------------------------------
-    # MOSTRAR PANEL
-    # --------------------------------------
-
     return render_template(
         "garage.html",
         usuario=session["usuario"],
@@ -1423,9 +1223,9 @@ def garage():
     )
 
 
-# ==========================================
-# GUARDAR CONFIGURACIÓN DE GARAGE
-# ==========================================
+# ============================================================
+# GUARDAR CONFIGURACION DE GARAGE
+# ============================================================
 
 @app.route(
     "/garage/guardar",
@@ -1433,17 +1233,8 @@ def garage():
 )
 @login_requerido
 def guardar_garage():
-    if "usuario_id" not in session:
-
-        return redirect(
-            url_for("iniciar_sesion")
-        )
 
     usuario_id = session["usuario_id"]
-
-    # --------------------------------------
-    # EVITAR DUPLICADOS
-    # --------------------------------------
 
     garage_existente = obtener_entorno(
         usuario_id,
@@ -1456,19 +1247,11 @@ def guardar_garage():
             url_for("garage")
         )
 
-    # --------------------------------------
-    # CREAR ENTORNO
-    # --------------------------------------
-
     entorno_id = crear_entorno_db(
         usuario_id,
         "Garage",
         "garage"
     )
-
-    # --------------------------------------
-    # CREAR ESPACIO GENERAL
-    # --------------------------------------
 
     espacio_id = crear_espacio_db(
         entorno_id,
@@ -1476,12 +1259,7 @@ def guardar_garage():
         "general"
     )
 
-    # --------------------------------------
-    # DISPOSITIVOS DISPONIBLES
-    # --------------------------------------
-
     dispositivos_disponibles = [
-
         "porton",
         "temperatura",
         "humedad",
@@ -1490,12 +1268,7 @@ def guardar_garage():
         "alarma",
         "ventilacion",
         "camara"
-
     ]
-
-    # --------------------------------------
-    # GUARDAR LOS SELECCIONADOS
-    # --------------------------------------
 
     for dispositivo in dispositivos_disponibles:
 
@@ -1506,97 +1279,189 @@ def guardar_garage():
                 dispositivo
             )
 
-    # --------------------------------------
-    # VOLVER AL PANEL
-    # --------------------------------------
-
     return redirect(
         url_for("garage")
     )
+
 # ==========================================
-# CONTROL LED
+# CAMARA
 # ==========================================
 
-@app.route("/api/led/on")
+def generar_video():
+
+    while True:
+
+        ok, frame = camara.read()
+
+        if not ok:
+            continue
+
+        ok, buffer = cv2.imencode(
+            ".jpg",
+            frame
+        )
+
+        if not ok:
+            continue
+
+        frame_bytes = buffer.tobytes()
+
+        yield (
+            b"--frame\r\n"
+            b"Content-Type: image/jpeg\r\n\r\n"
+            + frame_bytes
+            + b"\r\n"
+        )
+
+
+@app.route("/video_feed")
 @login_requerido
-def led_on():
+def video_feed():
 
-    led.on()
+    return app.response_class(
+        generar_video(),
+        mimetype="multipart/x-mixed-replace; boundary=frame"
+    )
+# ============================================================
+# CONTROL DE ALARMA
+# ============================================================
 
-    return jsonify({
-        "estado": "encendido"
-    })
+# GPIO 27
+# RELAY -> BATERIA -> ALARMA
 
-
-@app.route("/api/led/off")
-@login_requerido
-def led_off():
-
-    led.off()
-
-    return jsonify({
-        "estado": "apagado"
-    })
-
-
-# ==========================================
-# CONTROL ALARMA
-# ==========================================
-
-@app.route("/api/alarma/on")
+@app.route("/alarma/on")
 @login_requerido
 def alarma_on():
 
-    alarma.on()
+    try:
 
-    return jsonify({
-        "estado": "activada"
-    })
+        rele_alarma.on()
+
+        return jsonify({
+            "estado": "encendido",
+            "mensaje": "Alarma activada"
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "estado": "error",
+            "mensaje": str(e)
+        }), 500
 
 
-@app.route("/api/alarma/off")
+@app.route("/alarma/off")
 @login_requerido
 def alarma_off():
 
-    alarma.off()
+    try:
 
-    return jsonify({
-        "estado": "desactivada"
-    })
+        rele_alarma.off()
+
+        return jsonify({
+            "estado": "apagado",
+            "mensaje": "Alarma desactivada"
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "estado": "error",
+            "mensaje": str(e)
+        }), 500
 
 
-# ==========================================
+# ============================================================
 # SENSOR DHT11
-# ==========================================
+# ============================================================
 
-@app.route("/api/sensor")
+@app.route("/sensor")
 @login_requerido
 def leer_sensor():
 
     try:
 
-        humedad = sensor.humidity
-        temperatura = sensor.temperature
+        temperatura = sensor_dht.temperature
 
-        if humedad is not None and temperatura is not None:
+        humedad = sensor_dht.humidity
+
+        if (
+            temperatura is not None
+            and humedad is not None
+        ):
 
             return jsonify({
-                "temperatura": round(temperatura, 1),
-                "humedad": round(humedad, 1)
+                "temperatura": round(
+                    temperatura,
+                    1
+                ),
+                "humedad": round(
+                    humedad,
+                    1
+                )
             })
 
         return jsonify({
             "error": "No se pudo leer el sensor"
-        }), 500
+        })
 
     except Exception as e:
 
         return jsonify({
             "error": str(e)
         }), 500
-# ==========================================
-# CERRAR SESIÓN
-# ==========================================
+
+
+# ============================================================
+# CONTROL DE ILUMINACION
+# GPIO 17
+# ============================================================
+
+@app.route("/led/on")
+@login_requerido
+def led_on():
+
+    try:
+
+        led_iluminacion.on()
+
+        return jsonify({
+            "estado": "encendido",
+            "mensaje": "Iluminacion encendida"
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "estado": "error",
+            "mensaje": str(e)
+        }), 500
+
+
+@app.route("/led/off")
+@login_requerido
+def led_off():
+
+    try:
+
+        led_iluminacion.off()
+
+        return jsonify({
+            "estado": "apagado",
+            "mensaje": "Iluminacion apagada"
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "estado": "error",
+            "mensaje": str(e)
+        }), 500
+
+
+# ============================================================
+# CERRAR SESION
+# ============================================================
 
 @app.route("/logout")
 @login_requerido
@@ -1609,9 +1474,9 @@ def logout():
     )
 
 
-# ==========================================
+# ============================================================
 # INICIAR FLASK
-# ==========================================
+# ============================================================
 
 if __name__ == "__main__":
 
@@ -1620,5 +1485,5 @@ if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=5000,
-        debug=True
+        debug=False
     )
