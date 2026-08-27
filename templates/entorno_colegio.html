@@ -14,166 +14,395 @@
 
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='colegiocss.css') }}"
+        href="{{ url_for('static', filename='colegio.css') }}"
     >
 
 </head>
 
+
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <header>
 
-            <div class="logo">
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
 
-                <div class="logo-icon">
-                    🏫
-                </div>
+    <header class="header">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                🏫
+            </div>
+
+            <div class="logo-text">
+
+                <h1>
+                    {{ entorno["nombre"] }}
+                </h1>
+
+                <small>
+                    Centro de Automatización
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-right">
+
+            <div class="connection">
+
+                <span
+                    class="dot"
+                    id="connectionDot"
+                ></span>
+
+                <span id="connectionText">
+                    Verificando...
+                </span>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('index') }}"
+                class="back-button"
+            >
+                Mis entornos
+            </a>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         CONTENIDO PRINCIPAL
+    ====================================================== -->
+
+    <main class="main-grid">
+
+
+        <!-- =================================================
+             ESPACIOS
+        ================================================== -->
+
+        <section class="card spaces-card">
+
+            <div class="section-title">
 
                 <div>
-
-                    <h1>
-                        {{ entorno["nombre"] }}
-                    </h1>
-
-                    <small>
-                        Centro de Automatización
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <div class="header-derecha">
-
-                <div class="connection">
-
-                    <span class="dot"></span>
-
-                    Sistema conectado
-
-                </div>
-
-                <a
-                    href="{{ url_for('index') }}"
-                    class="boton-volver"
-                >
-                    Mis entornos
-                </a>
-
-            </div>
-
-        </header>
-
-
-        <div class="grid">
-
-            <div>
-
-                <div class="card">
 
                     <h2>
                         Espacios del colegio
                     </h2>
 
-
-                    {% for espacio in espacios %}
-
-                        <div class="info-box">
-
-                            <small>
-                                {{ espacio["tipo"]|replace("_", " ")|title }}
-                            </small>
-
-                            <strong>
-                                {{ espacio["nombre"] }}
-                            </strong>
-
-
-                            {% if espacio["dispositivos"] %}
-
-                                <div class="controls">
-
-                                    {% for dispositivo in espacio["dispositivos"] %}
-
-                                        <button
-                                            class="control-button"
-                                        >
-                                            {% if dispositivo["tipo"] == "iluminacion" %}
-                                                💡 Iluminación
-                                            {% elif dispositivo["tipo"] == "temperatura" %}
-                                                🌡️ Temperatura
-                                            {% elif dispositivo["tipo"] == "humedad" %}
-                                                💧 Humedad
-                                            {% elif dispositivo["tipo"] == "movimiento" %}
-                                                👤 Movimiento
-                                            {% elif dispositivo["tipo"] == "alarma" %}
-                                                🚨 Alarma
-                                            {% elif dispositivo["tipo"] == "ventilacion" %}
-                                                🌀 Ventilación
-                                            {% else %}
-                                                {{ dispositivo["tipo"] }}
-                                            {% endif %}
-                                        </button>
-
-                                    {% endfor %}
-
-                                </div>
-
-                            {% else %}
-
-                                <p>
-                                    Este espacio no tiene
-                                    dispositivos configurados.
-                                </p>
-
-                            {% endif %}
-
-                        </div>
-
-                    {% endfor %}
+                    <p>
+                        Control independiente de cada espacio
+                    </p>
 
                 </div>
 
             </div>
 
 
-            <div>
+            <div class="spaces">
 
-                <div class="card">
 
-                    <h2>
-                        Información
-                    </h2>
+                {% for espacio in espacios %}
 
-                    <div class="info">
+                    <div class="space-card">
 
-                        <div class="info-box">
 
-                            <small>
-                                Usuario
-                            </small>
+                        <!-- =================================
+                             CABECERA DEL ESPACIO
+                        ================================== -->
 
-                            <strong>
-                                {{ usuario }}
-                            </strong>
+                        <div class="space-header">
+
+                            <div class="space-name">
+
+                                <span class="space-icon">
+                                    {% if espacio["tipo"] == "aula" %}
+                                        🏫
+                                    {% else %}
+                                        🏢
+                                    {% endif %}
+                                </span>
+
+                                <div>
+
+                                    <small>
+                                        {{ espacio["tipo"]|replace("_", " ")|title }}
+                                    </small>
+
+                                    <h3>
+                                        {{ espacio["nombre"] }}
+                                    </h3>
+
+                                </div>
+
+                            </div>
 
                         </div>
 
 
-                        <div class="info-box">
 
-                            <small>
-                                Espacios
-                            </small>
+                        <!-- =================================
+                             DISPOSITIVOS
+                        ================================== -->
 
-                            <strong>
-                                {{ espacios|length }}
-                            </strong>
+                        {% if espacio["dispositivos"] %}
 
-                        </div>
+                            <div class="devices">
+
+
+                                {% for dispositivo in espacio["dispositivos"] %}
+
+
+                                    <!-- =================================
+                                         ILUMINACIÓN
+                                    ================================== -->
+
+                                    {% if dispositivo["tipo"] == "iluminacion" %}
+
+                                        <div class="device">
+
+                                            <button
+                                                type="button"
+                                                class="device-button {% if dispositivo['estado'] == 'encendido' %}active{% endif %}"
+                                                data-id="{{ dispositivo['id'] }}"
+                                                data-tipo="iluminacion"
+                                                onclick="toggleDispositivo(this)"
+                                            >
+
+                                                <span class="device-icon">
+                                                    💡
+                                                </span>
+
+                                                <span
+                                                    class="device-name"
+                                                    id="nombre-{{ dispositivo['id'] }}"
+                                                >
+
+                                                    {% if dispositivo["estado"] == "encendido" %}
+                                                        Luz encendida
+                                                    {% else %}
+                                                        Luz apagada
+                                                    {% endif %}
+
+                                                </span>
+
+                                            </button>
+
+
+                                            <span
+                                                class="device-status {% if dispositivo['estado'] == 'encendido' %}on{% endif %}"
+                                                id="estado-{{ dispositivo['id'] }}"
+                                            >
+
+                                                {% if dispositivo["estado"] == "encendido" %}
+                                                    🟢 ENCENDIDA
+                                                {% else %}
+                                                    ⚫ APAGADA
+                                                {% endif %}
+
+                                            </span>
+
+                                        </div>
+
+
+                                    <!-- =================================
+                                         TEMPERATURA
+                                    ================================== -->
+
+                                    {% elif dispositivo["tipo"] == "temperatura" %}
+
+                                        <div class="device">
+
+                                            <div class="device-button sensor">
+
+                                                <span class="device-icon">
+                                                    🌡️
+                                                </span>
+
+                                                <span class="device-name">
+                                                    Temperatura
+                                                </span>
+
+                                            </div>
+
+
+                                            <span
+                                                class="sensor-value"
+                                                id="temperatura-{{ dispositivo['id'] }}"
+                                            >
+                                                -- °C
+                                            </span>
+
+                                        </div>
+
+
+                                    <!-- =================================
+                                         HUMEDAD
+                                    ================================== -->
+
+                                    {% elif dispositivo["tipo"] == "humedad" %}
+
+                                        <div class="device">
+
+                                            <div class="device-button sensor">
+
+                                                <span class="device-icon">
+                                                    💧
+                                                </span>
+
+                                                <span class="device-name">
+                                                    Humedad
+                                                </span>
+
+                                            </div>
+
+
+                                            <span
+                                                class="sensor-value"
+                                                id="humedad-{{ dispositivo['id'] }}"
+                                            >
+                                                -- %
+                                            </span>
+
+                                        </div>
+
+
+                                    <!-- =================================
+                                         ALARMA
+                                    ================================== -->
+
+                                    {% elif dispositivo["tipo"] == "alarma" %}
+
+                                        <div class="device">
+
+                                            <button
+                                                type="button"
+                                                class="device-button alarm {% if dispositivo['estado'] == 'encendido' %}active{% endif %}"
+                                                data-id="{{ dispositivo['id'] }}"
+                                                data-tipo="alarma"
+                                                onclick="toggleDispositivo(this)"
+                                            >
+
+                                                <span class="device-icon">
+                                                    🚨
+                                                </span>
+
+                                                <span
+                                                    class="device-name"
+                                                    id="nombre-{{ dispositivo['id'] }}"
+                                                >
+
+                                                    {% if dispositivo["estado"] == "encendido" %}
+                                                        Alarma activa
+                                                    {% else %}
+                                                        Alarma
+                                                    {% endif %}
+
+                                                </span>
+
+                                            </button>
+
+
+                                            <span
+                                                class="device-status alarm-status {% if dispositivo['estado'] == 'encendido' %}on{% endif %}"
+                                                id="estado-{{ dispositivo['id'] }}"
+                                            >
+
+                                                {% if dispositivo["estado"] == "encendido" %}
+                                                    🔴 ACTIVA
+                                                {% else %}
+                                                    ⚫ APAGADA
+                                                {% endif %}
+
+                                            </span>
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                {% endfor %}
+
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="no-devices">
+
+                                Este espacio no tiene
+                                dispositivos configurados.
+
+                            </div>
+
+                        {% endif %}
+
+
+                    </div>
+
+                {% endfor %}
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PANEL DERECHO
+        ================================================== -->
+
+        <aside>
+
+
+            <!-- =============================================
+                 INFORMACIÓN
+            ============================================== -->
+
+            <div class="card">
+
+                <h2>
+                    Información
+                </h2>
+
+
+                <div class="info-grid">
+
+                    <div class="info-box">
+
+                        <small>
+                            Usuario
+                        </small>
+
+                        <strong>
+                            {{ usuario }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <small>
+                            Espacios
+                        </small>
+
+                        <strong>
+                            {{ espacios|length }}
+                        </strong>
 
                     </div>
 
@@ -181,16 +410,152 @@
 
             </div>
 
+
+
+            <!-- =============================================
+                 HARDWARE FÍSICO
+            ============================================== -->
+
+            <div class="card hardware-card">
+
+                <h2>
+                    Hardware físico
+                </h2>
+
+
+                <div class="hardware-item">
+
+                    <div>
+
+                        <small>
+                            💡 LED físico
+                        </small>
+
+                        <strong id="hardwareLuz">
+                            Consultando...
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hardware-item">
+
+                    <div>
+
+                        <small>
+                            🚨 Relé de alarma
+                        </small>
+
+                        <strong id="hardwareAlarma">
+                            Consultando...
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="hardware-description">
+
+                    El hardware físico es compartido.
+                    Cada espacio mantiene su propio
+                    estado dentro del sistema.
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 ACTUALIZAR
+            ============================================== -->
+
+            <button
+                type="button"
+                class="refresh-button"
+                onclick="actualizarTodo()"
+            >
+
+                🔄 Actualizar
+
+            </button>
+
+
+        </aside>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         HISTORIAL
+    ====================================================== -->
+
+    <section class="card history-card">
+
+        <div class="history-header">
+
+            <div>
+
+                <h2>
+                    Actividad reciente
+                </h2>
+
+                <p>
+                    Últimas acciones realizadas
+                </p>
+
+            </div>
+
         </div>
 
 
-        <footer>
+        <div id="history">
 
-            Centro de Automatización
+            <div class="history-event">
 
-        </footer>
+                <span>
+                    📡 Sistema iniciado
+                </span>
 
-    </div>
+                <span>
+                    Ahora
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer>
+
+        Centro de Automatización · Colegio
+
+    </footer>
+
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT EXTERNO
+========================================================= -->
+
+<script
+    src="{{ url_for('static', filename='javascript/colegiojs.js') }}"
+></script>
+
 
 </body>
 

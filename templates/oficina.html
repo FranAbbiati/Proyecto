@@ -117,6 +117,10 @@
             </div>
 
 
+            <!-- =========================
+                 PUERTA / SERVO
+            ========================== -->
+
             <button
                 class="main-button"
                 id="officeButton"
@@ -182,7 +186,7 @@
 
 
 
-                <!-- ACTUALIZAR SIEMPRE DISPONIBLE -->
+                <!-- ACTUALIZAR -->
 
                 <button
                     class="control-button"
@@ -402,9 +406,11 @@
                             </div>
 
 
-                            <span>
-                                Transmisión en vivo
-                            </span>
+                            <img
+                                src="{{ url_for('camera_feed') }}"
+                                alt="Cámara de la oficina"
+                                class="camera-video"
+                            >
 
                         </div>
 
@@ -468,8 +474,11 @@
 </div>
 
 
-<script src="{{ url_for('static', filename='oficinajs.js') }}"></script>
+<script
+    src="{{ url_for('static', filename='javascript/oficinajs.js') }}"
+></script>
 
 </body>
 
 </html>
+```

@@ -366,13 +366,58 @@ async function refreshStatus() {
 
 function toggleGarage() {
 
-    addHistory(
-        "⚠️ Portón todavía no conectado al hardware"
-    );
+    fetch("/porton/toggle")
+        .then(response => response.json())
+        .then(data => {
 
-    alert(
-        "El portón todavía no está conectado a la Raspberry Pi."
-    );
+            if (data.estado === "abierto") {
+
+                document.getElementById("garageStatus").textContent = "Abierto";
+
+                document.getElementById("garageSubstatus").textContent =
+                    "El portón está abierto";
+
+                document.getElementById("garageButton").textContent =
+                    "CERRAR PORTÓN";
+
+                document.getElementById("garageIcon").textContent = "🚪";
+
+                addHistory("🚪 Portón abierto");
+
+            }
+
+            else if (data.estado === "cerrado") {
+
+                document.getElementById("garageStatus").textContent = "Cerrado";
+
+                document.getElementById("garageSubstatus").textContent =
+                    "El portón está asegurado";
+
+                document.getElementById("garageButton").textContent =
+                    "ABRIR PORTÓN";
+
+                document.getElementById("garageIcon").textContent = "🚪";
+
+                addHistory("🚪 Portón cerrado");
+
+            }
+
+            else {
+
+                alert("Error: " + data.mensaje);
+
+            }
+
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            alert(
+                "No se pudo conectar con la Raspberry Pi."
+            );
+
+        });
 }
 
 

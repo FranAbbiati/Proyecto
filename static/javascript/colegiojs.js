@@ -1,13 +1,13 @@
-let gateOpen = false;
-let lightOn = false;
-let alarmOn = false;
+/* =========================================================
+   COLEGIO - JAVASCRIPT
+========================================================= */
 
 
-/* ==========================================
+/* =========================================================
    HORA
-========================================== */
+========================================================= */
 
-function getTime() {
+function obtenerHora() {
 
     return new Date().toLocaleTimeString(
         "es-AR",
@@ -16,290 +16,497 @@ function getTime() {
             minute: "2-digit"
         }
     );
+
 }
 
 
-/* ==========================================
+
+/* =========================================================
    HISTORIAL
-========================================== */
+========================================================= */
 
-function addHistory(text) {
+function agregarHistorial(texto) {
 
-    const history =
+    const historial =
         document.getElementById("history");
 
-    if (!history) return;
+    if (!historial) {
+        return;
+    }
 
 
-    const event =
+    const evento =
         document.createElement("div");
 
-    event.className = "event";
+    evento.className =
+        "history-event";
 
 
-    event.innerHTML = `
-        <span>${text}</span>
-        <span class="event-time">
-            ${getTime()}
-        </span>
-    `;
+    const mensaje =
+        document.createElement("span");
+
+    mensaje.textContent =
+        texto;
 
 
-    history.prepend(event);
+    const hora =
+        document.createElement("span");
+
+    hora.textContent =
+        obtenerHora();
+
+
+    evento.appendChild(mensaje);
+
+    evento.appendChild(hora);
+
+
+    historial.prepend(evento);
+
+
+    const eventos =
+        historial.querySelectorAll(
+            ".history-event"
+        );
+
+
+    if (eventos.length > 8) {
+
+        eventos[eventos.length - 1].remove();
+
+    }
+
 }
 
 
-/* ==========================================
-   CONEXIÓN
-========================================== */
 
-function conexionCorrecta() {
+/* =========================================================
+   CAMBIAR DISPOSITIVO
+========================================================= */
 
-    const dot =
-        document.getElementById("connectionDot");
+async function toggleDispositivo(boton) {
 
-    const text =
-        document.getElementById("connectionText");
+    if (!boton) {
+        return;
+    }
 
 
-    if (dot) {
+    const id =
+        boton.getAttribute("data-id");
 
-        dot.style.background =
-            "#22c55e";
 
-        dot.style.boxShadow =
-            "0 0 10px #22c55e";
+    const tipo =
+        boton.getAttribute("data-tipo");
+
+
+    if (!id || !tipo) {
+
+        console.error(
+            "Falta el ID o tipo del dispositivo."
+        );
+
+        return;
 
     }
 
 
-    if (text) {
+    boton.disabled = true;
 
-        text.textContent =
-            "Dispositivo conectado";
-
-    }
-}
-
-
-function conexionError() {
-
-    const dot =
-        document.getElementById("connectionDot");
-
-    const text =
-        document.getElementById("connectionText");
-
-
-    if (dot) {
-
-        dot.style.background =
-            "#ef4444";
-
-        dot.style.boxShadow =
-            "0 0 10px #ef4444";
-
-    }
-
-
-    if (text) {
-
-        text.textContent =
-            "Desconectado";
-
-    }
-}
-
-
-/* ==========================================
-   COMUNICACIÓN CON FLASK
-========================================== */
-
-async function sendCommand(endpoint) {
 
     try {
 
-        const response =
-            await fetch(`/${endpoint}`);
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Respuesta incorrecta"
+        const respuesta =
+            await fetch(
+                "/dispositivo/" + id + "/toggle",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
             );
+
+
+        const data =
+            await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            alert(
+                data.error ||
+                data.mensaje ||
+                "No se pudo cambiar el dispositivo."
+            );
+
+            return;
 
         }
 
 
-        conexionCorrecta();
-
-        return true;
-
-
-    } catch (error) {
-
-        conexionError();
-
-        addHistory(
-            "❌ Error de conexión con Raspberry"
+        actualizarDispositivo(
+            id,
+            tipo,
+            data.estado
         );
+
+
+        if (tipo === "iluminacion") {
+
+            if (data.estado === "encendido") {
+
+                agregarHistorial(
+                    "💡 Iluminación encendida"
+                );
+
+            } else {
+
+                agregarHistorial(
+                    "🌑 Iluminación apagada"
+                );
+
+            }
+
+        }
+
+
+        if (tipo === "alarma") {
+
+            if (data.estado === "encendido") {
+
+                agregarHistorial(
+                    "🚨 Alarma activada"
+                );
+
+            } else {
+
+                agregarHistorial(
+                    "🔕 Alarma desactivada"
+                );
+
+            }
+
+        }
+
+
+        actualizarHardware();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error:",
+            error
+        );
+
 
         alert(
-            "⚠️ No se pudo comunicar con la Raspberry Pi."
+            "No se pudo comunicar con la Raspberry Pi."
         );
 
-        return false;
     }
+
+    finally {
+
+        boton.disabled = false;
+
+    }
+
 }
 
 
-/* ==========================================
-   TIMBRE
-========================================== */
 
-function triggerBell() {
+/* =========================================================
+   ACTUALIZAR VISUALMENTE UN DISPOSITIVO
+========================================================= */
 
-    addHistory(
-        "⚠️ Timbre todavía no conectado al hardware"
-    );
+function actualizarDispositivo(
+    id,
+    tipo,
+    estado
+) {
 
-    alert(
-        "El timbre todavía no está conectado a la Raspberry Pi."
-    );
-}
-
-
-/* ==========================================
-   PORTÓN
-========================================== */
-
-function toggleGate() {
-
-    addHistory(
-        "⚠️ Portón todavía no conectado al hardware"
-    );
-
-    alert(
-        "El portón todavía no está conectado a la Raspberry Pi."
-    );
-}
+    const boton =
+        document.querySelector(
+            '.device-button[data-id="' +
+            id +
+            '"]'
+        );
 
 
-/* ==========================================
-   ILUMINACIÓN
-========================================== */
-
-function toggleLight() {
-
-    addHistory(
-        "⚠️ Iluminación todavía no conectada al hardware"
-    );
-
-    alert(
-        "La iluminación todavía no está conectada a la Raspberry Pi."
-    );
-}
-
-
-/* ==========================================
-   ALARMA
-========================================== */
-
-async function toggleAlarm() {
-
-    const targetState =
-        !alarmOn;
-
-
-    const endpoint =
-        targetState
-            ? "alarma/on"
-            : "alarma/off";
-
-
-    const success =
-        await sendCommand(endpoint);
-
-
-    if (!success) return;
-
-
-    alarmOn =
-        targetState;
-
-
-    const button =
+    const estadoElemento =
         document.getElementById(
-            "alarmButton"
+            "estado-" + id
         );
 
 
-    if (alarmOn) {
-
-        if (button) {
-
-            button.classList.add(
-                "active"
-            );
-
-            button.textContent =
-                "🚨 Alarma activa";
-
-        }
-
-        addHistory(
-            "🚨 Alarma del colegio activada"
+    const nombre =
+        document.getElementById(
+            "nombre-" + id
         );
 
 
-    } else {
-
-        if (button) {
-
-            button.classList.remove(
-                "active"
-            );
-
-            button.textContent =
-                "🚨 Alarma";
-
-        }
-
-        addHistory(
-            "🔕 Alarma del colegio desactivada"
-        );
-
+    if (!boton) {
+        return;
     }
 
 
-    updateTime();
+    if (estado === "encendido") {
+
+        boton.classList.add("active");
+
+
+        if (estadoElemento) {
+
+            estadoElemento.classList.add(
+                "on"
+            );
+
+        }
+
+
+        if (tipo === "iluminacion") {
+
+            if (nombre) {
+
+                nombre.textContent =
+                    "Luz encendida";
+
+            }
+
+
+            if (estadoElemento) {
+
+                estadoElemento.textContent =
+                    "🟢 ENCENDIDA";
+
+            }
+
+        }
+
+
+        if (tipo === "alarma") {
+
+            if (nombre) {
+
+                nombre.textContent =
+                    "Alarma activa";
+
+            }
+
+
+            if (estadoElemento) {
+
+                estadoElemento.textContent =
+                    "🔴 ACTIVA";
+
+            }
+
+        }
+
+    }
+
+    else {
+
+        boton.classList.remove("active");
+
+
+        if (estadoElemento) {
+
+            estadoElemento.classList.remove(
+                "on"
+            );
+
+        }
+
+
+        if (tipo === "iluminacion") {
+
+            if (nombre) {
+
+                nombre.textContent =
+                    "Luz apagada";
+
+            }
+
+
+            if (estadoElemento) {
+
+                estadoElemento.textContent =
+                    "⚫ APAGADA";
+
+            }
+
+        }
+
+
+        if (tipo === "alarma") {
+
+            if (nombre) {
+
+                nombre.textContent =
+                    "Alarma";
+
+            }
+
+
+            if (estadoElemento) {
+
+                estadoElemento.textContent =
+                    "⚫ APAGADA";
+
+            }
+
+        }
+
+    }
+
 }
 
 
-/* ==========================================
-   SENSOR DHT11
-========================================== */
 
-async function refreshStatus() {
+/* =========================================================
+   ACTUALIZAR HARDWARE FÍSICO
+========================================================= */
+
+async function actualizarHardware() {
 
     try {
 
-        const response =
-            await fetch("/sensor");
+        const respuesta =
+            await fetch(
+                "/estado-hardware"
+            );
 
 
-        if (!response.ok) {
+        if (!respuesta.ok) {
 
             throw new Error(
-                "No se pudo leer el sensor"
+                "No se pudo consultar el hardware."
             );
 
         }
 
 
         const data =
-            await response.json();
+            await respuesta.json();
+
+
+        const luz =
+            document.getElementById(
+                "hardwareLuz"
+            );
+
+
+        const alarma =
+            document.getElementById(
+                "hardwareAlarma"
+            );
+
+
+        if (luz) {
+
+            if (data.iluminacion) {
+
+                luz.textContent =
+                    "🟢 ENCENDIDA";
+
+            } else {
+
+                luz.textContent =
+                    "⚫ APAGADA";
+
+            }
+
+        }
+
+
+        if (alarma) {
+
+            if (data.alarma) {
+
+                alarma.textContent =
+                    "🔴 ACTIVA";
+
+            } else {
+
+                alarma.textContent =
+                    "⚫ APAGADA";
+
+            }
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error hardware:",
+            error
+        );
+
+
+        const luz =
+            document.getElementById(
+                "hardwareLuz"
+            );
+
+
+        const alarma =
+            document.getElementById(
+                "hardwareAlarma"
+            );
+
+
+        if (luz) {
+
+            luz.textContent =
+                "⚠️ Sin conexión";
+
+        }
+
+
+        if (alarma) {
+
+            alarma.textContent =
+                "⚠️ Sin conexión";
+
+        }
+
+    }
+
+}
+
+
+
+/* =========================================================
+   ACTUALIZAR TEMPERATURA Y HUMEDAD
+========================================================= */
+
+async function actualizarSensores() {
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/sensor"
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                "Error leyendo sensor."
+            );
+
+        }
+
+
+        const data =
+            await respuesta.json();
 
 
         if (data.error) {
@@ -311,83 +518,189 @@ async function refreshStatus() {
         }
 
 
-        const temperatura =
-            document.getElementById(
-                "tempVal"
+        const temperaturas =
+            document.querySelectorAll(
+                "[id^='temperatura-']"
             );
 
 
-        const humedad =
-            document.getElementById(
-                "humidityVal"
-            );
+        temperaturas.forEach(
+            function(elemento) {
 
+                elemento.textContent =
+                    data.temperatura +
+                    " °C";
 
-        if (temperatura) {
-
-            temperatura.textContent =
-                data.temperatura + " °C";
-
-        }
-
-
-        if (humedad) {
-
-            humedad.textContent =
-                data.humedad + " %";
-
-        }
-
-
-        conexionCorrecta();
-
-
-        addHistory(
-            "🌡️ Temperatura y humedad actualizadas"
+            }
         );
 
 
-        updateTime();
+        const humedades =
+            document.querySelectorAll(
+                "[id^='humedad-']"
+            );
 
 
-    } catch (error) {
+        humedades.forEach(
+            function(elemento) {
 
-        conexionError();
+                elemento.textContent =
+                    data.humedad +
+                    " %";
 
-        addHistory(
-            "❌ Error al leer DHT11"
+            }
         );
 
     }
+
+    catch (error) {
+
+        console.error(
+            "Error sensor:",
+            error
+        );
+
+    }
+
 }
 
 
-/* ==========================================
-   HORA
-========================================== */
 
-function updateTime() {
+/* =========================================================
+   COMPROBAR CONEXIÓN
+========================================================= */
 
-    const element =
+async function comprobarConexion() {
+
+    const punto =
         document.getElementById(
-            "lastUpdate"
+            "connectionDot"
         );
 
 
-    if (element) {
+    const texto =
+        document.getElementById(
+            "connectionText"
+        );
 
-        element.textContent =
-            getTime();
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/sensor"
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error();
+
+        }
+
+
+        if (punto) {
+
+            punto.style.background =
+                "#22c55e";
+
+            punto.style.boxShadow =
+                "0 0 10px #22c55e";
+
+        }
+
+
+        if (texto) {
+
+            texto.textContent =
+                "Sistema conectado";
+
+        }
 
     }
+
+    catch (error) {
+
+        if (punto) {
+
+            punto.style.background =
+                "#ef4444";
+
+            punto.style.boxShadow =
+                "0 0 10px #ef4444";
+
+        }
+
+
+        if (texto) {
+
+            texto.textContent =
+                "Desconectado";
+
+        }
+
+    }
+
 }
 
 
-/* ==========================================
+
+/* =========================================================
+   ACTUALIZAR TODO
+========================================================= */
+
+function actualizarTodo() {
+
+    actualizarSensores();
+
+    actualizarHardware();
+
+    comprobarConexion();
+
+    agregarHistorial(
+        "🔄 Sistema actualizado"
+    );
+
+}
+
+
+
+/* =========================================================
    INICIO
-========================================== */
+========================================================= */
 
 window.addEventListener(
     "load",
-    refreshStatus
+    function() {
+
+        actualizarSensores();
+
+        actualizarHardware();
+
+        comprobarConexion();
+
+    }
+);
+
+
+
+/* =========================================================
+   ACTUALIZACIÓN AUTOMÁTICA
+========================================================= */
+
+setInterval(
+    actualizarSensores,
+    5000
+);
+
+
+setInterval(
+    actualizarHardware,
+    3000
+);
+
+
+setInterval(
+    comprobarConexion,
+    10000
 );

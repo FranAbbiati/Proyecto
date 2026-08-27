@@ -1,562 +1,758 @@
-/* =========================
-   GENERAL
-========================= */
+/* =========================================================
+   COLEGIO - CENTRO DE AUTOMATIZACIÓN
+   MISMA PALETA QUE GARAGE
+========================================================= */
 
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* =========================================================
+   BODY
+========================================================= */
 
 body {
     min-height: 100vh;
 
-    font-family: Arial, sans-serif;
+    background: #0f172a;
 
-    background:
-        linear-gradient(
-            135deg,
-            #0f1c27,
-            #172d3d
-        );
-
-    color: #ffffff;
-
-    display: flex;
-    flex-direction: column;
+    color: #f8fafc;
 }
 
 
-/* =========================
-   ENCABEZADO
-========================= */
+/* =========================================================
+   CONTENEDOR
+========================================================= */
 
-.encabezado {
-    height: 75px;
+.container {
+    width: min(1200px, 94%);
 
-    padding: 0 50px;
+    margin: 0 auto;
 
+    padding: 30px 0 25px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
-    border-bottom:
-        1px solid rgba(255,255,255,0.07);
+    gap: 20px;
 
-    background:
-        rgba(10, 23, 33, 0.45);
+    margin-bottom: 28px;
 }
 
+
+/* =========================================================
+   LOGO
+========================================================= */
 
 .logo {
     display: flex;
+
     align-items: center;
 
-    gap: 12px;
+    gap: 14px;
 }
 
 
-.logo-punto {
-    width: 11px;
-    height: 11px;
+.logo-icon {
+    width: 52px;
 
-    border-radius: 50%;
+    height: 52px;
 
-    background: #3d9bd1;
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 14px;
+
+    background: #2563eb;
+
+    font-size: 27px;
 
     box-shadow:
-        0 0 12px rgba(61,155,209,0.7);
+        0 8px 20px rgba(37, 99, 235, .20);
 }
 
 
 .logo h1 {
-    font-size: 18px;
+    font-size: 23px;
 
-    font-weight: 600;
+    line-height: 1.2;
 
-    color: #ffffff;
+    font-weight: 700;
 }
 
 
-/* =========================
-   USUARIO
-========================= */
-
-.usuario {
-    display: flex;
-
-    align-items: center;
-
-    gap: 22px;
-
-    font-size: 14px;
-
-    color: #b8c8d3;
-}
-
-
-.usuario span {
-    color: #b8c8d3;
-}
-
-
-.usuario a {
-    color: #6f91a3;
-
-    text-decoration: none;
-
-    transition: 0.2s;
-}
-
-
-.usuario a:hover {
-    color: #ffffff;
-}
-
-
-/* =========================
-   CONTENIDO
-========================= */
-
-main {
-    width: 100%;
-
-    max-width: 850px;
-
-    margin: 0 auto;
-
-    padding: 70px 35px;
-
-    flex: 1;
-}
-
-
-/* =========================
-   INTRODUCCIÓN
-========================= */
-
-.introduccion {
-    margin-bottom: 40px;
-}
-
-
-.etiqueta {
-    display: inline-block;
-
-    color: #55b6ed;
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    letter-spacing: 1.5px;
-}
-
-
-.introduccion h2 {
-    margin-top: 12px;
-
-    margin-bottom: 12px;
-
-    font-size: 36px;
-
-    font-weight: 600;
-
-    letter-spacing: -0.7px;
-
-    color: #ffffff;
-}
-
-
-.introduccion p {
-    color: #91a5b2;
-
-    font-size: 16px;
-
-    line-height: 1.6;
-}
-
-
-/* =========================
-   FORMULARIO
-========================= */
-
-.formulario {
-    padding: 35px;
-
-    background: #182733;
-
-    border:
-        1px solid rgba(255,255,255,0.07);
-
-    border-radius: 18px;
-
-    box-shadow:
-        0 10px 30px rgba(0,0,0,0.20);
-}
-
-
-/* =========================
-   CAMPOS
-========================= */
-
-.campo {
-    margin-bottom: 30px;
-}
-
-
-.campo:last-child {
-    margin-bottom: 0;
-}
-
-
-.campo label {
+.logo small {
     display: block;
 
-    margin-bottom: 10px;
+    margin-top: 5px;
 
-    font-size: 15px;
+    color: #94a3b8;
 
-    color: #dce7ed;
-
-    font-weight: 500;
+    font-size: 13px;
 }
 
 
-.campo input {
-    width: 100%;
+/* =========================================================
+   HEADER DERECHA
+========================================================= */
 
-    padding: 14px 16px;
-
-    border:
-        1px solid rgba(255,255,255,0.1);
-
-    border-radius: 9px;
-
-    background: #10212d;
-
-    color: #ffffff;
-
-    font-size: 14px;
-
-    outline: none;
-
-    transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
-}
-
-
-.campo input::placeholder {
-    color: #5f7786;
-}
-
-
-.campo input:focus {
-    border-color: #3d9bd1;
-
-    box-shadow:
-        0 0 0 3px rgba(61,155,209,0.10);
-}
-
-
-.ayuda {
-    display: block;
-
-    margin-top: 9px;
-
-    color: #6f8796;
-
-    font-size: 12px;
-}
-
-
-/* =========================
-   TÍTULOS
-========================= */
-
-.formulario h3 {
-    margin-top: 35px;
-
-    margin-bottom: 22px;
-
-    padding-bottom: 10px;
-
-    border-bottom:
-        1px solid rgba(255,255,255,0.07);
-
-    color: #ffffff;
-
-    font-size: 20px;
-}
-
-
-.formulario h3:first-child {
-    margin-top: 0;
-}
-
-
-/* =========================
-   ACCIONES
-========================= */
-
-.acciones {
+.header-derecha {
     display: flex;
-
-    justify-content: flex-end;
 
     align-items: center;
 
     gap: 12px;
-
-    margin-top: 35px;
-
-    padding-top: 25px;
-
-    border-top:
-        1px solid rgba(255,255,255,0.07);
 }
 
 
-/* =========================
-   BOTÓN PRINCIPAL
-========================= */
-
-.boton {
-    border: none;
-
-    padding: 13px 26px;
-
-    border-radius: 9px;
-
-    background: #3d9bd1;
-
-    color: #ffffff;
-
-    font-size: 14px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s,
-        transform 0.2s,
-        box-shadow 0.2s;
-}
-
-
-.boton:hover {
-    background: #3188bb;
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 8px 20px rgba(61,155,209,0.25);
-}
-
-
-/* =========================
-   BOTÓN SECUNDARIO
-========================= */
-
-.boton-secundario {
-    display: inline-block;
-
-    padding: 13px 24px;
-
-    border-radius: 9px;
-
-    background: transparent;
-
-    border:
-        1px solid rgba(255,255,255,0.1);
-
-    color: #91a5b2;
-
-    text-decoration: none;
-
-    font-size: 14px;
-
-    font-weight: bold;
-
-    transition:
-        background 0.2s,
-        border-color 0.2s,
-        color 0.2s;
-}
-
-
-.boton-secundario:hover {
-    color: #ffffff;
-
-    border-color:
-        rgba(61,155,209,0.35);
-
-    background:
-        rgba(61,155,209,0.06);
-}
-
-
-/* =========================
-   FOOTER
-========================= */
-
-footer {
-    height: 60px;
-
-    padding: 0 50px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    border-top:
-        1px solid rgba(255,255,255,0.06);
-
-    color: #526a78;
-
-    font-size: 12px;
-}
-
-
-.estado {
-    color: #54d99a;
-}
-
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media (max-width: 650px) {
-
-    .encabezado {
-        height: auto;
-
-        padding: 20px 25px;
-
-        gap: 15px;
-
-        flex-direction: column;
-
-        align-items: flex-start;
-    }
-
-
-    .usuario {
-        width: 100%;
-
-        justify-content: space-between;
-    }
-
-
-    main {
-        padding: 50px 20px;
-    }
-
-
-    .introduccion h2 {
-        font-size: 30px;
-    }
-
-
-    .formulario {
-        padding: 25px 20px;
-    }
-
-
-    .acciones {
-        flex-direction: column-reverse;
-
-        align-items: stretch;
-    }
-
-
-    .boton,
-    .boton-secundario {
-        width: 100%;
-
-        text-align: center;
-    }
-
-
-    footer {
-        height: auto;
-
-        padding: 20px 25px;
-
-        flex-direction: column;
-
-        gap: 8px;
-    }
-}
-/* =========================
-   DISPOSITIVOS
-========================= */
-
-.dispositivos {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    gap: 10px;
-
-    margin-top: 12px;
-}
-
-
-.dispositivos label {
+/* =========================================================
+   CONEXION
+========================================================= */
+
+.connection {
     display: flex;
 
     align-items: center;
 
     gap: 9px;
 
-    padding: 11px 13px;
+    padding: 10px 15px;
+
+    border-radius: 20px;
+
+    background: #1e293b;
+
+    border: 1px solid #334155;
+
+    color: #cbd5e1;
+
+    font-size: 13px;
+}
+
+
+.dot {
+    width: 9px;
+
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 10px #22c55e;
+}
+
+
+/* =========================================================
+   BOTON VOLVER
+========================================================= */
+
+.boton-volver {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 10px 16px;
 
     border-radius: 9px;
 
-    background: #10212d;
+    background: #334155;
 
-    border:
-        1px solid rgba(255,255,255,0.06);
+    border: 1px solid #475569;
 
-    color: #b8c8d3;
+    color: #cbd5e1;
 
-    font-size: 13px;
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+    transition: .2s ease;
+}
+
+
+.boton-volver:hover {
+    background: #475569;
+
+    color: #ffffff;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   GRID PRINCIPAL
+========================================================= */
+
+.grid {
+    display: grid;
+
+    grid-template-columns: minmax(0, 1.65fr) minmax(280px, .75fr);
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card {
+    background: #1e293b;
+
+    border: 1px solid #334155;
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, .20);
+}
+
+
+.card h2 {
+    font-size: 19px;
+
+    font-weight: 700;
+
+    margin-bottom: 18px;
+}
+
+
+/* =========================================================
+   LISTA DE ESPACIOS
+========================================================= */
+
+.espacio-box {
+    position: relative;
+
+    background: #0f172a;
+
+    border: 1px solid #334155;
+
+    border-radius: 15px;
+
+    padding: 18px;
+
+    margin-top: 14px;
+
+    transition: .2s ease;
+}
+
+
+.espacio-box:hover {
+    border-color: #475569;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   CABECERA DEL ESPACIO
+========================================================= */
+
+.espacio-titulo {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding-bottom: 15px;
+
+    border-bottom: 1px solid #334155;
+}
+
+
+.espacio-titulo small {
+    display: block;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .7px;
+
+    margin-bottom: 5px;
+}
+
+
+.espacio-titulo strong {
+    display: block;
+
+    color: #f8fafc;
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   CONTROLES DEL ESPACIO
+========================================================= */
+
+.controls {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-top: 15px;
+}
+
+
+/* =========================================================
+   CADA DISPOSITIVO
+========================================================= */
+
+.device {
+    min-width: 0;
+
+    background: #1e293b;
+
+    border: 1px solid #334155;
+
+    border-radius: 12px;
+
+    padding: 10px;
+
+    transition: .2s ease;
+}
+
+
+.device:hover {
+    border-color: #475569;
+
+    background: #243247;
+}
+
+
+/* =========================================================
+   BOTON DE DISPOSITIVO
+========================================================= */
+
+.device .control-button {
+    width: 100%;
+
+    min-height: 48px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    padding: 12px;
+
+    background: #334155;
+
+    color: #ffffff;
 
     cursor: pointer;
 
-    transition:
-        background 0.2s,
-        border-color 0.2s;
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition: .2s ease;
 }
 
 
-.dispositivos label:hover {
-    background: #1d3545;
+.device .control-button:hover {
+    background: #475569;
 
-    border-color:
-        rgba(61,155,209,0.3);
+    transform: translateY(-1px);
 }
 
 
-.dispositivos input {
-    accent-color: #3d9bd1;
-
-    width: 16px;
-
-    height: 16px;
+.device .control-button:active {
+    transform: translateY(0);
 }
 
+
+/* =========================================================
+   DISPOSITIVO ACTIVO
+========================================================= */
+
+.device .control-button.active {
+    background: #f59e0b;
+
+    color: #111827;
+
+    box-shadow:
+        0 5px 15px rgba(245, 158, 11, .12);
+}
+
+
+.device .control-button.active:hover {
+    background: #d97706;
+}
+
+
+/* =========================================================
+   ESTADO DE DISPOSITIVO
+========================================================= */
+
+.device-status {
+    display: block;
+
+    margin-top: 8px;
+
+    padding: 5px 8px;
+
+    border-radius: 7px;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: .3px;
+}
+
+
+/* =========================================================
+   ESTADO ENCENDIDO
+========================================================= */
+
+.device-status.encendido {
+    color: #22c55e;
+
+    background: rgba(34, 197, 94, .08);
+}
+
+
+/* =========================================================
+   SENSORES
+========================================================= */
+
+.sensor-button {
+    cursor: default !important;
+
+    background: #334155 !important;
+}
+
+
+.sensor-button:hover {
+    background: #334155 !important;
+
+    transform: none !important;
+}
+
+
+/* =========================================================
+   MENSAJE SIN DISPOSITIVOS
+========================================================= */
+
+.espacio-box > p {
+    margin-top: 15px;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    background: #1e293b;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   PANEL INFORMACION
+========================================================= */
+
+.grid > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+
+.grid > div:last-child .card {
+    width: 100%;
+}
+
+
+/* =========================================================
+   INFORMACION
+========================================================= */
+
+.info {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+}
+
+
+.info-box {
+    background: #0f172a;
+
+    border: 1px solid #334155;
+
+    padding: 15px;
+
+    border-radius: 12px;
+}
+
+
+.info-box small {
+    display: block;
+
+    color: #94a3b8;
+
+    margin-bottom: 7px;
+
+    font-size: 12px;
+}
+
+
+.info-box strong {
+    display: block;
+
+    color: #f8fafc;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   HARDWARE FISICO
+========================================================= */
+
+#hardwareLuz,
+#hardwareAlarma {
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   TEXTO EXPLICATIVO HARDWARE
+========================================================= */
+
+.card p[style] {
+    color: #94a3b8 !important;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   COLORES DE ESTADO
+========================================================= */
+
+.success {
+    color: #22c55e;
+}
+
+
+.warning {
+    color: #f59e0b;
+}
+
+
+.error {
+    color: #ef4444;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+    text-align: center;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    margin-top: 28px;
+
+    padding-top: 5px;
+}
+
+
+/* =========================================================
+   ANIMACION DE BOTONES
+========================================================= */
+
+.control-button {
+    user-select: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .grid > div:last-child {
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        align-items: start;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOVIL
+========================================================= */
 
 @media (max-width: 650px) {
 
-    .dispositivos {
+    .container {
+        width: 92%;
+
+        padding-top: 20px;
+    }
+
+
+    header {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+
+    .header-derecha {
+        width: 100%;
+
+        flex-wrap: wrap;
+    }
+
+
+    .connection {
+        flex: 1;
+    }
+
+
+    .boton-volver {
+        white-space: nowrap;
+    }
+
+
+    .controls {
         grid-template-columns: 1fr;
+    }
+
+
+    .grid > div:last-child {
+        display: flex;
+
+        flex-direction: column;
+    }
+
+
+    .info {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOVIL PEQUEÑO
+========================================================= */
+
+@media (max-width: 430px) {
+
+    .container {
+        width: 94%;
+    }
+
+
+    .card {
+        padding: 16px;
+    }
+
+
+    .logo h1 {
+        font-size: 20px;
+    }
+
+
+    .logo-icon {
+        width: 46px;
+
+        height: 46px;
+
+        font-size: 23px;
+    }
+
+
+    .header-derecha {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .connection {
+        justify-content: center;
+    }
+
+
+    .boton-volver {
+        width: 100%;
+
+        text-align: center;
+    }
+
+
+    .espacio-box {
+        padding: 14px;
+    }
+
+
+    .espacio-titulo strong {
+        font-size: 16px;
     }
 
 }

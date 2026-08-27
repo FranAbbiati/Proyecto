@@ -1,7 +1,7 @@
-let doorUnlocked = false;
-let lightOn = false;
+const RASPBERRY_IP = window.location.origin;
+
 let alarmOn = false;
-let acOn = false;
+let lightOn = false;
 
 
 /* ==========================================
@@ -31,10 +31,12 @@ function addHistory(text) {
 
     if (!history) return;
 
+
     const event =
         document.createElement("div");
 
     event.className = "event";
+
 
     event.innerHTML = `
         <span>${text}</span>
@@ -43,21 +45,26 @@ function addHistory(text) {
         </span>
     `;
 
+
     history.prepend(event);
 }
 
 
 /* ==========================================
-   ESTADO DE CONEXIÓN
+   CONEXIÓN
 ========================================== */
 
 function conexionCorrecta() {
 
     const dot =
-        document.getElementById("connectionDot");
+        document.getElementById(
+            "connectionDot"
+        );
 
     const text =
-        document.getElementById("connectionText");
+        document.getElementById(
+            "connectionText"
+        );
 
 
     if (dot) {
@@ -83,10 +90,14 @@ function conexionCorrecta() {
 function conexionError() {
 
     const dot =
-        document.getElementById("connectionDot");
+        document.getElementById(
+            "connectionDot"
+        );
 
     const text =
-        document.getElementById("connectionText");
+        document.getElementById(
+            "connectionText"
+        );
 
 
     if (dot) {
@@ -115,16 +126,35 @@ function conexionError() {
 
 async function sendCommand(endpoint) {
 
+    const controller =
+        new AbortController();
+
+    const timeoutId =
+        setTimeout(
+            () => controller.abort(),
+            2000
+        );
+
+
     try {
 
         const response =
-            await fetch(`/${endpoint}`);
+            await fetch(
+                `${RASPBERRY_IP}/${endpoint}`,
+                {
+                    method: "GET",
+                    signal: controller.signal
+                }
+            );
+
+
+        clearTimeout(timeoutId);
 
 
         if (!response.ok) {
 
             throw new Error(
-                "Respuesta incorrecta"
+                `HTTP ${response.status}`
             );
 
         }
@@ -137,50 +167,30 @@ async function sendCommand(endpoint) {
 
     } catch (error) {
 
-        conexionError();
+        clearTimeout(timeoutId);
 
-        addHistory(
-            "❌ Error de conexión con Raspberry"
+
+        console.error(
+            "Error enviando comando:",
+            error
         );
+
 
         alert(
-            "⚠️ No se pudo comunicar con la Raspberry Pi."
+            "⚠️ No se pudo establecer comunicación con la Raspberry Pi."
         );
+
+
+        addHistory(
+            "❌ Error de comunicación con Raspberry"
+        );
+
+
+        conexionError();
+
 
         return false;
     }
-}
-
-
-/* ==========================================
-   PUERTA
-========================================== */
-
-async function toggleDoor() {
-
-    addHistory(
-        "⚠️ Puerta todavía no conectada al hardware"
-    );
-
-    alert(
-        "La puerta todavía no está conectada a la Raspberry Pi."
-    );
-}
-
-
-/* ==========================================
-   ILUMINACIÓN
-========================================== */
-
-async function toggleLight() {
-
-    addHistory(
-        "⚠️ Iluminación todavía no conectada al hardware"
-    );
-
-    alert(
-        "La iluminación todavía no está conectada a la Raspberry Pi."
-    );
 }
 
 
@@ -230,6 +240,7 @@ async function toggleAlarm() {
 
         }
 
+
         addHistory(
             "🚨 Alarma de oficina activada"
         );
@@ -244,33 +255,19 @@ async function toggleAlarm() {
             );
 
             button.textContent =
-                "🚨 Alarma";
+                "🔔 Alarma";
 
         }
+
 
         addHistory(
             "🔕 Alarma de oficina desactivada"
         );
+
     }
 
 
     updateTime();
-}
-
-
-/* ==========================================
-   CLIMA
-========================================== */
-
-async function toggleAC() {
-
-    addHistory(
-        "⚠️ Climatización todavía no conectada al hardware"
-    );
-
-    alert(
-        "La climatización todavía no está conectada a la Raspberry Pi."
-    );
 }
 
 
@@ -331,7 +328,7 @@ async function refreshStatus() {
         if (humedad) {
 
             humedad.textContent =
-                data.humedad + " %";
+                data.humedad + "%";
 
         }
 
@@ -340,7 +337,7 @@ async function refreshStatus() {
 
 
         addHistory(
-            "🌡️ Temperatura y humedad actualizadas"
+            "🌡️ DHT11 actualizado"
         );
 
 
@@ -351,11 +348,229 @@ async function refreshStatus() {
 
         conexionError();
 
+
         addHistory(
             "❌ Error al leer DHT11"
         );
 
     }
+}
+
+
+/* ==========================================
+   PUERTA DE OFICINA
+   MISMO SERVO DEL GARAGE
+   GPIO 18
+========================================== */
+
+function toggleDoor() {
+
+    fetch("/porton/toggle")
+        .then(response => response.json())
+        .then(data => {
+
+            if (data.estado === "abierto") {
+
+                document.getElementById(
+                    "officeStatus"
+                ).textContent =
+                    "Desbloqueada";
+
+
+                document.getElementById(
+                    "officeSubstatus"
+                ).textContent =
+                    "La puerta está abierta";
+
+
+                document.getElementById(
+                    "officeButton"
+                ).textContent =
+                    "BLOQUEAR PUERTA";
+
+
+                document.getElementById(
+                    "officeIcon"
+                ).textContent =
+                    "🚪";
+
+
+                addHistory(
+                    "🚪 Puerta de oficina desbloqueada"
+                );
+
+            }
+
+
+            else if (data.estado === "cerrado") {
+
+                document.getElementById(
+                    "officeStatus"
+                ).textContent =
+                    "Bloqueada";
+
+
+                document.getElementById(
+                    "officeSubstatus"
+                ).textContent =
+                    "La puerta está asegurada";
+
+
+                document.getElementById(
+                    "officeButton"
+                ).textContent =
+                    "DESBLOQUEAR PUERTA";
+
+
+                document.getElementById(
+                    "officeIcon"
+                ).textContent =
+                    "🚪";
+
+
+                addHistory(
+                    "🔒 Puerta de oficina bloqueada"
+                );
+
+            }
+
+
+            else {
+
+                alert(
+                    "Error: " +
+                    data.mensaje
+                );
+
+            }
+
+        })
+        .catch(error => {
+
+            console.error(error);
+
+
+            alert(
+                "No se pudo conectar con la Raspberry Pi."
+            );
+
+        });
+}
+
+
+/* ==========================================
+   ILUMINACIÓN
+========================================== */
+
+async function toggleLight() {
+
+    const targetState =
+        !lightOn;
+
+
+    const endpoint =
+        targetState
+            ? "led/on"
+            : "led/off";
+
+
+    const success =
+        await sendCommand(endpoint);
+
+
+    if (!success) return;
+
+
+    lightOn =
+        targetState;
+
+
+    const button =
+        document.getElementById(
+            "lightButton"
+        );
+
+
+    const estado =
+        document.getElementById(
+            "lightVal"
+        );
+
+
+    if (lightOn) {
+
+        if (button) {
+
+            button.classList.add(
+                "active"
+            );
+
+            button.textContent =
+                "💡 Luces encendidas";
+
+        }
+
+
+        if (estado) {
+
+            estado.textContent =
+                "Encendida";
+
+        }
+
+
+        addHistory(
+            "💡 Iluminación de oficina encendida"
+        );
+
+
+    } else {
+
+        if (button) {
+
+            button.classList.remove(
+                "active"
+            );
+
+            button.textContent =
+                "💡 Luces";
+
+        }
+
+
+        if (estado) {
+
+            estado.textContent =
+                "Apagada";
+
+        }
+
+
+        addHistory(
+            "🌑 Iluminación de oficina apagada"
+        );
+
+    }
+
+
+    updateTime();
+}
+
+
+/* ==========================================
+   CLIMA
+========================================== */
+
+async function toggleAC() {
+
+    addHistory(
+        "⚠️ Climatización todavía no conectada al hardware"
+    );
+
+
+    alert(
+        "La climatización todavía no está conectada a la Raspberry Pi."
+    );
 }
 
 

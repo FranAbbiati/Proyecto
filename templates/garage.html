@@ -194,27 +194,6 @@
                 >
                     🔄 Actualizar
                 </button>
-
-
-
-                <!-- BLOQUEAR -->
-
-                {% for dispositivo in dispositivos %}
-
-                    {% if dispositivo["tipo"] == "porton" %}
-
-                        <button
-                            class="control-button"
-                            onclick="lockGarage()"
-                        >
-                            🔒 Bloquear
-                        </button>
-
-                    {% endif %}
-
-                {% endfor %}
-
-
             </div>
 
 
@@ -284,72 +263,6 @@
                         {% endif %}
 
                     {% endfor %}
-
-
-
-                    <!-- MOVIMIENTO -->
-
-                    {% for dispositivo in dispositivos %}
-
-                        {% if dispositivo["tipo"] == "movimiento" %}
-
-                            <div class="info-box">
-
-                                <small>
-                                    Movimiento
-                                </small>
-
-                                <strong id="movementVal">
-                                    No detectado
-                                </strong>
-
-                            </div>
-
-                        {% endif %}
-
-                    {% endfor %}
-
-
-
-                    <!-- VENTILACIÓN -->
-
-                    {% for dispositivo in dispositivos %}
-
-                        {% if dispositivo["tipo"] == "ventilacion" %}
-
-                            <div class="info-box">
-
-                                <small>
-                                    Ventilación
-                                </small>
-
-                                <strong id="ventilationVal">
-                                    Apagada
-                                </strong>
-
-                            </div>
-
-                        {% endif %}
-
-                    {% endfor %}
-
-
-
-                    <!-- SEÑAL WI-FI -->
-
-                    <div class="info-box">
-
-                        <small>
-                            Señal Wi-Fi
-                        </small>
-
-                        <strong>
-                            Excelente
-                        </strong>
-
-                    </div>
-
-
 
                     <!-- ÚLTIMA ACTUALIZACIÓN -->
 

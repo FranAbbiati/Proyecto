@@ -5,8 +5,9 @@ import sqlite3
 import subprocess
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
+from time import sleep
 
-from gpiozero import LED
+from gpiozero import LED, Servo
 import board
 import adafruit_dht
 
@@ -38,6 +39,19 @@ led_iluminacion = LED(17)
 # ------------------------------------------------------------
 
 sensor_dht = adafruit_dht.DHT11(board.D4)
+
+# ------------------------------------------------------------
+# SERVO DEL PORToN
+# GPIO 18
+# ------------------------------------------------------------
+servo_porton = None
+
+# False = cerrado
+# True = abierto
+porton_abierto = False
+
+# El servo no debe quedar recibiendo PWM
+# mientras la aplicacion esta esperando.
 
 
 # ============================================================
@@ -1164,10 +1178,9 @@ def guardar_oficina():
     dispositivos_disponibles = [
         "temperatura",
         "humedad",
-        "movimiento",
         "iluminacion",
         "alarma",
-        "ventilacion",
+        "servo",
         "camara"
     ]
 
@@ -1423,7 +1436,66 @@ def led_off():
             "estado": "error",
             "mensaje": str(e)
         }), 500
+# ============================================================
+# CONTROL DEL PORToN
+# GPIO 18
+# SERVO SG90
+# ============================================================
 
+@app.route("/porton/toggle")
+@login_requerido
+def toggle_porton():
+
+    global porton_abierto
+    global servo_porton
+
+    try:
+
+        if servo_porton is None:
+            servo_porton = Servo(18)
+
+        if porton_abierto:
+
+            # CERRAR
+            servo_porton.min()
+
+            import time
+            time.sleep(1)
+
+            servo_porton.detach()
+            servo_porton = None
+
+            porton_abierto = False
+
+            return jsonify({
+                "estado": "cerrado",
+                "mensaje": "Porton cerrado"
+            })
+
+        else:
+
+            # ABRIR
+            servo_porton.max()
+
+            import time
+            time.sleep(1)
+
+            servo_porton.detach()
+            servo_porton = None
+
+            porton_abierto = True
+
+            return jsonify({
+                "estado": "abierto",
+                "mensaje": "Porton abierto"
+            })
+
+    except Exception as e:
+
+        return jsonify({
+            "estado": "error",
+            "mensaje": str(e)
+        }), 500
 # ============================================================
 # CAMARA - WIDECAM F100
 # ============================================================
