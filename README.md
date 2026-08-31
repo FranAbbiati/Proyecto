@@ -61,7 +61,7 @@ El sistema utiliza una **Raspberry Pi** como unidad central de control.
 | 🚪 Servomotor   | **SG90**                           | Control del portón                          |
 | 🔌 Relé         | **Módulo relé de 5 V**             | Interruptor de la alimentación de la sirena |
 | 💡 Iluminación  | **LED**                            | Iluminación del sistema                     |
-| 📷 Cámara       | Cámara compatible con Raspberry Pi | Vigilancia                                  |
+| 📷 Cámara       | Web cam con conector USB-C         | Vigilancia                                  |
 
 ---
 
