@@ -577,6 +577,4 @@ Todo dentro de un único sistema accesible desde un navegador web.
 
 # 📌 Estado del proyecto
 
-🚧 **En desarrollo**
-
-El sistema se encuentra en desarrollo y se continúa trabajando en la integración del hardware, la interfaz web y el control independiente de Casa, Garage, Escuela y Oficina.
+👍**FINALIZADO**
