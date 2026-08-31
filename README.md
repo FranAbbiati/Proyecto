@@ -463,7 +463,7 @@ El sistema utiliza una arquitectura **cliente-servidor** con una API JSON.
 * **SG90**
 * **Módulo relé de 5 V**
 * **LED**
-* Cámara compatible con Raspberry Pi
+* **Cámara web con conector USB-C**
 
 ---
 
