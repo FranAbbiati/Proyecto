@@ -1,526 +1,387 @@
-# 🏠 Sistema de Control y Domótica — Raspberry Pi + Flask
+# 🏠 Sistema de Control y Domótica
 
-Sistema web de **control y automatización** desarrollado con **Python, Flask y Raspberry Pi**, diseñado para administrar diferentes espacios desde una interfaz web.
+## 📌 Descripción
 
-El sistema permite controlar cuatro espacios:
+Este proyecto consiste en un **Sistema de Control y Domótica de Entornos**, desarrollado con **Python, Flask y Raspberry Pi**.
+
+El sistema permite controlar diferentes entornos desde una interfaz web centralizada. Cada entorno puede contar con distintos dispositivos y sensores, permitiendo realizar acciones de automatización y monitoreo.
+
+Los entornos implementados son:
 
 * 🏠 **Casa**
 * 🚗 **Garage**
 * 🏫 **Escuela**
 * 🏢 **Oficina**
 
-En cada espacio se pueden controlar diferentes dispositivos, como:
-
-* 💡 Luz LED
-* 🚨 Alarma
-* 📷 Cámara
-* 🌡️ Sensor de temperatura y humedad
-
-Además, el garage cuenta con un **servomotor SG90** para controlar el portón.
-
-El sistema cuenta con un **inicio de sesión obligatorio**, por lo que el usuario debe autenticarse antes de acceder al panel de control.
+El usuario debe iniciar sesión para acceder al sistema y controlar los dispositivos disponibles en cada entorno.
 
 ---
 
-# ✨ Características principales
+# ⚙️ Funcionalidades
 
-## 🔐 Inicio de sesión
+El sistema permite:
 
-El sistema comienza con una pantalla de autenticación.
-
-El usuario debe ingresar sus credenciales para acceder al panel principal.
-
-Las contraseñas se almacenan mediante **hashing seguro utilizando `werkzeug.security`**, evitando guardarlas en texto plano.
-
----
-
-## 🏠 Control de espacios
-
-El usuario puede seleccionar el espacio que desea administrar:
-
-| Espacio    | Funciones                                                            |
-| ---------- | -------------------------------------------------------------------- |
-| 🏠 Casa    | 💡 Luz · 🚨 Alarma · 📷 Cámara · 🌡️ Temperatura/Humedad             |
-| 🚗 Garage  | 💡 Luz · 🚨 Alarma · 📷 Cámara · 🌡️ Temperatura/Humedad · 🚪 Portón |
-| 🏫 Escuela | 💡 Luz · 🚨 Alarma · 📷 Cámara · 🌡️ Temperatura/Humedad · 🚪 Portón |
-| 🏢 Oficina | 💡 Luz · 🚨 Alarma · 📷 Cámara · 🌡️ Temperatura/Humedad             |
-
-Los dispositivos pueden activarse, desactivarse o consultarse desde el panel web.
+* 🔐 Registro e inicio de sesión de usuarios.
+* 🔒 Almacenamiento seguro de contraseñas mediante hash.
+* 🏠 Acceso a diferentes entornos.
+* 💡 Control de iluminación.
+* 🚨 Activación y desactivación de alarma.
+* 🌡️ Lectura de temperatura.
+* 💧 Lectura de humedad.
+* 📷 Visualización mediante cámara.
+* 🚪 Control del portón del garage mediante servo.
+* 🌐 Control de los dispositivos desde una interfaz web.
+* 🔄 Comunicación entre la página web y la Raspberry Pi.
+* 💾 Almacenamiento de información mediante SQLite.
 
 ---
 
-# 🔧 Hardware utilizado
+# 🧰 Hardware utilizado
 
-El sistema utiliza una **Raspberry Pi** como unidad central de control.
-
-| Componente      | Modelo                             | Función                                     |
-| --------------- | ---------------------------------- | ------------------------------------------- |
-| 🖥️ Controlador | Raspberry Pi                       | Ejecuta Flask y controla el hardware        |
-| 🚨 Sirena       | **X-28 S22**                       | Sistema de alarma                           |
-| 🌡️ Sensor      | **DHT11**                          | Medición de temperatura y humedad           |
-| 🚪 Servomotor   | **SG90**                           | Control del portón                          |
-| 🔌 Relé         | **Módulo relé de 5 V**             | Interruptor de la alimentación de la sirena |
-| 💡 Iluminación  | **LED**                            | Iluminación del sistema                     |
-| 📷 Cámara       | Web cam con conector USB-C         | Vigilancia                                  |
+| Componente      | Función                                 |
+| --------------- | --------------------------------------- |
+| Raspberry Pi    | Control principal del sistema           |
+| X-28 S22        | Sistema de alarma                       |
+| DHT11           | Sensor de temperatura y humedad         |
+| SG90            | Apertura y cierre del portón del garage |
+| Módulo relay 5V | Control de la alarma                    |
+| LED             | Iluminación                             |
+| Cámara USB      | Monitoreo mediante video                |
 
 ---
 
-# 🔌 Conexiones del hardware
+# 🔌 Conexiones GPIO
 
-La Raspberry Pi funciona como el **controlador central** del sistema.
+Se utiliza la numeración **BCM** de la Raspberry Pi.
 
-Los GPIO se utilizan para enviar señales de control y recibir información de los sensores.
-
-Los dispositivos que necesitan una alimentación independiente, como la sirena X-28, utilizan su propia fuente de alimentación.
-
-> ⚠️ **Importante:** los GPIO de la Raspberry Pi trabajan con lógica de 3,3 V. Nunca se debe conectar una fuente de 5 V, 9 V o superior directamente a un GPIO.
+| Dispositivo        |    GPIO |
+| ------------------ | ------: |
+| LED de iluminación | GPIO 17 |
+| Servo SG90         | GPIO 18 |
+| Relay de alarma    | GPIO 27 |
+| DHT11              |  GPIO 4 |
 
 ---
 
-# 💡 Conexión de la luz LED
+# 💡 LED de iluminación
 
-La iluminación del sistema se realiza mediante una **LED independiente**.
+El LED se utiliza para representar el sistema de iluminación.
 
-La LED se conecta a un GPIO de la Raspberry Pi utilizando una resistencia para limitar la corriente.
+### Conexión
 
-### 🔌 Conexión
+* Ánodo del LED → resistencia → GPIO 17
+* Cátodo del LED → GND
 
-| LED                    | Raspberry Pi                                      |
-| ---------------------- | ------------------------------------------------- |
-| Ánodo (+), pata larga  | GPIO 17                                           |
-| Cátodo (-), pata corta | GND                                               |
-
-Esquema:
+### Funcionamiento
 
 ```text
-Raspberry Pi
-     │
-     │ GPIO
-     ▼
-┌─────────────┐
-│ Resistencia │
-└──────┬──────┘
-       │
-       ▼
-      LED
-       │
-       ▼
-      GND
+GPIO 17 HIGH → LED encendido
+GPIO 17 LOW  → LED apagado
 ```
 
-### ⚙️ Funcionamiento
-
-* GPIO en estado **HIGH** → la LED se enciende.
-* GPIO en estado **LOW** → la LED se apaga.
-
-La resistencia es necesaria para limitar la corriente que circula por la LED y evitar dañarla.
+El control se realiza mediante `gpiozero`.
 
 ---
 
-# 🚨 Conexión de la alarma X-28 S22
+# 🚨 Sistema de alarma
 
-El sistema utiliza una **sirena X-28 S22**, controlada mediante un **módulo relé de 5 V** que tenes que conectar de la siguiente manera:
-VCC o JD-VCC: Conéctalo al pin físico de 5V de la Raspberry Pi.
-GND (Tierra): Conéctalo a un pin de GND de la Raspberry Pi.
-IN (Entrada de señal): Conéctalo al pin GPIO 27 para activar o desactivar el relé.
+La alarma utiliza un **relay de 5V** para controlar la alimentación de la sirena X-28 S22.
 
-El relé funciona exclusivamente como un **interruptor para la alimentación de la sirena**.
+### Relay
 
-La Raspberry Pi controla el relé mediante un GPIO, mientras que la sirena recibe su alimentación de una **batería externa de 9 V**.
+* VCC / JD-VCC → 5V
+* GND → GND
+* IN → GPIO 27
 
-### 🔌 Conexión de la batería y la sirena
+La sirena utiliza su alimentación correspondiente y el relay permite controlar su activación.
 
-| Elemento                      | Conexión                 |
-| ----------------------------- | ------------------------ |
-| 🔋 Batería 9 V — positivo (+) | `COM` del relé           |
-| 🔋 Batería 9 V — negativo (-) | Cable negro de la sirena |
-| 🚨 Sirena X-28 — positivo (+) | `NO` del relé            |
-| 🚨 Sirena X-28 — negativo (-) | Cable negro de la sirena |
-
-Esquema:
+### Funcionamiento
 
 ```text
-                 BATERÍA 9 V
-              ┌───────────────┐
-              │               │
-           (+)│               │(-)
-              │               │
-              ▼               ▼
-          ┌───────┐       ┌───────────┐
-          │  COM  │       │  NEGRO    │
-          │ RELÉ  │       │  SIRENA   │
-          └───┬───┘       └─────┬─────┘
-              │                 │
-              │                 │
-          ┌───▼───┐             │
-          │  NO   │             │
-          │ RELÉ  │             │
-          └───┬───┘             │
-              │                 │
-              ▼                 │
-          🔴 ROJO ◄─────────────┘
-          SIRENA X-28
+GPIO 27 HIGH → Relay activado
+GPIO 27 LOW  → Relay desactivado
 ```
 
-### ⚙️ Funcionamiento
-
-El contacto `NO` significa **Normally Open / Normalmente Abierto**.
-
-**Relé desactivado:**
-
-```text
-COM ─── X ─── NO
-```
-
-COM y NO están separados, por lo que la batería no entrega el positivo a la sirena.
-
-**Relé activado:**
-
-```text
-COM ─────── NO
-```
-
-El positivo de la batería pasa desde `COM` hacia `NO` y llega al cable rojo de la sirena.
-
-El negativo de la batería permanece conectado directamente al cable negro de la sirena.
-
-De esta manera:
-
-```text
-Raspberry Pi
-     │
-     │ GPIO
-     ▼
-  RELÉ 5 V
-     │
-     │ Interruptor
-     ▼
- Batería 9 V
-     │
-     ▼
- X-28 S22
-```
-
-La Raspberry Pi **no alimenta directamente la sirena** ni recibe los 9 V de la batería.
-
-> ⚠️ Verificá siempre la polaridad y el esquema específico de la X-28 S22 antes de realizar la conexión física. La batería de 9 V debe quedar aislada de los GPIO de la Raspberry Pi.
+> ⚠️ La conexión de la sirena y su batería debe realizarse respetando las especificaciones eléctricas del equipo. No se debe conectar directamente una carga que supere la capacidad del GPIO o del relay.
 
 ---
 
 # 🌡️ Sensor DHT11
 
-El **DHT11** permite medir dos variables ambientales:
+El DHT11 permite obtener:
 
-* 🌡️ Temperatura
-* 💧 Humedad relativa
+* Temperatura
+* Humedad
 
-El sensor envía los datos digitales a la Raspberry Pi mediante su pin `DATA`.
+### Conexión
 
-### 🔌 Conexión
+| DHT11 | Raspberry Pi |
+| ----- | ------------ |
+| VCC   | 3.3V         |
+| DATA  | GPIO 4       |
+| GND   | GND          |
 
-| DHT11  | Raspberry Pi                 |
-| ------ | ---------------------------- |
-| `VCC`  | `3.3 V`                      |
-| `DATA` | `GPIO 4`                     |
-| `GND`  | `GND`                        |
+En Python se utiliza:
 
-Esquema:
+```python
+import board
+import adafruit_dht
 
-```text
-          DHT11
-       ┌──────────┐
-       │          │
- VCC ──┤ VCC      │
-       │          │
-DATA ──┤ DATA     │
-       │          │
- GND ──┤ GND      │
-       └────┬─────┘
-            │
-            ▼
-      Raspberry Pi
+sensor_dht = adafruit_dht.DHT11(board.D4)
 ```
-
-### ⚙️ Funcionamiento
-
-El DHT11 realiza la medición y envía los datos a través de `DATA`.
-
-La Raspberry Pi:
-
-1. Solicita/lee los datos del sensor.
-2. Obtiene la temperatura.
-3. Obtiene la humedad.
-4. Procesa la información mediante Python.
-5. Puede mostrar los valores en el panel web.
-
-Ejemplo:
-
-```text
-┌──────────────────────┐
-│       DHT11          │
-│                      │
-│ Temperatura: 24 °C   │
-│ Humedad:     58 %    │
-└──────────┬───────────┘
-           │
-           ▼
-    Raspberry Pi
-           │
-           ▼
-       Panel Web
-```
-
-> ⚠️ Si se utiliza un DHT11 en formato de sensor suelto y no un módulo, puede ser necesaria una resistencia pull-up entre `VCC` y `DATA`.
 
 ---
 
-# 🚪 Servomotor SG90
+# 🚪 Servo SG90
 
-El portón automatizado utiliza un **servomotor SG90**.
+El servo se utiliza para controlar el **portón del Garage**.
 
-El SG90 permite controlar la posición del portón mediante una señal **PWM (Pulse Width Modulation)** enviada desde la Raspberry Pi.
+### Conexión
 
-### 🔌 Conexión
+| SG90             | Raspberry Pi |
+| ---------------- | ------------ |
+| Rojo             | Alimentación |
+| Marrón/Negro     | GND          |
+| Naranja/Amarillo | GPIO 18      |
 
-El SG90 normalmente posee tres cables:
-
-| Cable SG90          | Función   | Conexión                     |
-| ------------------- | --------- | ---------------------------- |
-| 🔴 Rojo             | VCC       | Alimentación                 |
-| 🟤 Marrón/negro     | GND       | GND                          |
-| 🟠 Naranja/amarillo | Señal PWM | GPIO 18                      |
-
-Esquema:
+El servo puede utilizar posiciones diferentes para representar:
 
 ```text
-             SG90
-       ┌──────────────┐
-       │              │
-       │ 🔴 VCC       ├──── Alimentación
-       │              │
-       │ 🟤 GND       ├──── GND
-       │              │
-       │ 🟠 SIGNAL    ├──── GPIO PWM
-       │              │
-       └──────────────┘
+0°  → Portón cerrado
+90° → Portón abierto
 ```
 
-### ⚙️ Funcionamiento
-
-La Raspberry Pi envía una señal PWM al cable de señal del SG90.
-
-Dependiendo de la señal enviada, el servo se posiciona en diferentes ángulos.
-
-Por ejemplo:
-
-```text
-0°   → Portón cerrado
-90°  → Portón abierto
-```
-
-Los valores exactos deben ajustarse según el mecanismo físico utilizado.
-
-### ⚠️ Alimentación del SG90
-
-El SG90 puede producir picos de consumo, especialmente cuando comienza a moverse o encuentra resistencia.
-
-Por este motivo, si el servo presenta movimientos inestables o la Raspberry Pi se reinicia, se recomienda utilizar una **fuente de alimentación adecuada para el servo**.
-
-Si se utiliza una fuente externa para el SG90, es necesario establecer una **referencia GND común** con la Raspberry Pi para que la señal PWM tenga una referencia eléctrica correcta.
+> ⚠️ Si el servo requiere más corriente de la que puede entregar la Raspberry Pi, debe utilizarse una alimentación externa adecuada, manteniendo GND común entre la fuente y la Raspberry Pi.
 
 ---
 
 # 📷 Cámara
 
-El sistema también puede incorporar una cámara compatible con Raspberry Pi.
+Se utiliza una **cámara USB conectada a la Raspberry Pi** para realizar el monitoreo del entorno.
 
-La cámara se utiliza para funciones de **vigilancia y monitoreo**.
-
-El funcionamiento general es:
-
-```text
-📷 Cámara
-    │
-    ▼
-Raspberry Pi
-    │
-    ▼
-Sistema Flask
-    │
-    ▼
-Panel Web
-```
-
-La implementación concreta de captura o transmisión depende del modelo de cámara y del software utilizado.
-Cabe aclarar que nosotros usamos una web cam que es conectada a la Raspberry pi mediante USB-C y recomendamos que usted tambien lo haga.
+La cámara puede visualizarse desde la interfaz web del sistema.
 
 ---
 
-# 🧩 Esquema general del hardware
+# 💻 Tecnologías utilizadas
 
-El sistema completo puede representarse de la siguiente manera:
+## Backend
 
-```text
-                         ┌──────────────────┐
-                         │     USUARIO      │
-                         │ PC / CELULAR     │
-                         └────────┬─────────┘
-                                  │
-                                Wi-Fi
-                                  │
-                                  ▼
-                         ┌──────────────────┐
-                         │   RASPBERRY PI   │
-                         │                  │
-                         │ Python + Flask   │
-                         │ SQLite           │
-                         │ GPIO Zero        │
-                         └────────┬─────────┘
-                                  │
-            ┌─────────────────────┼─────────────────────┐
-            │                     │                     │
-            ▼                     ▼                     ▼
-          💡 LED                 DHT11                 SG90
-        Iluminación          Temperatura              Portón
-                              Humedad
-            │
-            │
-            │                     │
-            ▼                     ▼
-          GPIO                  GPIO
+* Python 3
+* Flask
+* SQLite3
+* Werkzeug Security
+* GPIO Zero
+* Adafruit Blinka
+* Adafruit CircuitPython DHT
 
+## Frontend
 
-                         GPIO
-                           │
-                           ▼
-                     ┌───────────┐
-                     │ RELÉ 5 V  │
-                     └─────┬─────┘
-                           │
-                    Interruptor
-                           │
-                           ▼
-                     🔋 Batería 9 V
-                           │
-                           ▼
-                      🚨 X-28 S22
+* HTML5
+* CSS3
+* JavaScript
+* Fetch API
 
+## Hardware
 
-                         📷
-                       Cámara
-                           │
-                           ▼
-                     Raspberry Pi
-```
+* Raspberry Pi
+* DHT11
+* SG90
+* Relay 5V
+* LED
+* X-28 S22
+* Cámara USB
 
 ---
 
-# 🗺️ Arquitectura del software
+# 🐍 Instalación en Raspberry Pi
 
-El sistema utiliza una arquitectura **cliente-servidor** con una API JSON.
+## 1. Actualizar Raspberry Pi
 
-### Flujo de funcionamiento
-
-1. El usuario accede al sistema.
-2. Flask muestra la pantalla de inicio de sesión.
-3. El usuario introduce sus credenciales.
-4. Flask verifica los datos.
-5. Si son correctos, se crea una sesión.
-6. El usuario accede al panel principal.
-7. Selecciona Casa, Garage, Escuela u Oficina.
-8. Selecciona el dispositivo que desea controlar.
-9. JavaScript realiza una petición `fetch()` a la API.
-10. Flask verifica la sesión.
-11. Flask procesa la solicitud.
-12. GPIO Zero controla el dispositivo correspondiente.
-13. El servidor devuelve una respuesta JSON.
-14. JavaScript actualiza la interfaz sin recargar la página.
-
----
-
-# 🛠️ Tecnologías utilizadas
-
-### Backend
-
-* **Python 3**
-* **Flask**
-* **SQLite3**
-* **Werkzeug Security**
-* **GPIO Zero**
-
-### Frontend
-
-* **HTML5**
-* **CSS3**
-* **JavaScript**
-* **Fetch API**
-
-### Hardware
-
-* **Raspberry Pi**
-* **X-28 S22**
-* **DHT11**
-* **SG90**
-* **Módulo relé de 5 V**
-* **LED**
-* **Cámara web con conector USB-C**
-
----
-
-# 🔌 Configuración de GPIO
-
-El sistema utiliza la numeración **BCM** para los GPIO.
-
-Los pines exactos deben coincidir con los definidos en `app.py`.
-
-Una configuración de ejemplo es:
-
-| Componente |          GPIO (BCM) | Función                 |
-| ---------- | ------------------: | ----------------------- |
-| 💡 LED     |           `GPIO 17` | Iluminación             |
-| 🚪 SG90    |           `GPIO 18` | Control del portón      |
-| 🚨 Relé    |           `GPIO 27` | Activación de la alarma |
-| 🌡️ DHT11  |            `GPIO 4`  | Temperatura y humedad   |
-
-> Recomendamos que verifique multiples veces si conecto de manera correcta todas las conexiones anteriormente mencionadas.
-
----
-
-# 🚀 Instalación
-
-## 1. Instalar dependencias
-
-En la Raspberry Pi:
+Abrir una terminal en la Raspberry Pi y ejecutar:
 
 ```bash
 sudo apt update
-sudo apt install python3-pip python3-rpi.gpio
-pip install flask gpiozero
+sudo apt upgrade -y
 ```
 
 ---
 
-## 2. Ejecutar el servidor
+# 2. Instalar Git y Python
 
-Desde la carpeta principal del proyecto:
+Instalar Python, pip, Git y el módulo para crear entornos virtuales:
+
+```bash
+sudo apt install -y python3 python3-pip python3-venv git
+```
+
+Comprobar las instalaciones:
+
+```bash
+python3 --version
+```
+
+```bash
+git --version
+```
+
+---
+
+# 3. Descargar el proyecto desde GitHub
+
+Clonar el repositorio:
+
+```bash
+git clone https://github.com/FranAbbiati/Proyecto.git
+```
+
+Entrar a la carpeta:
+
+```bash
+cd Proyecto
+```
+
+---
+
+# 4. Crear un entorno virtual
+
+Es recomendable utilizar un entorno virtual para evitar problemas con las librerías de Python y el sistema operativo.
+
+Crear el entorno:
+
+```bash
+python3 -m venv venv
+```
+
+Activarlo:
+
+```bash
+source venv/bin/activate
+```
+
+Cuando esté activo, aparecerá algo similar a:
+
+```text
+(venv)
+```
+
+al comienzo de la terminal.
+
+---
+
+# 5. Actualizar pip
+
+Con el entorno virtual activado:
+
+```bash
+pip install --upgrade pip
+```
+
+---
+
+# 6. Instalar Flask
+
+```bash
+pip install flask
+```
+
+---
+
+# 7. Instalar GPIO Zero
+
+```bash
+pip install gpiozero
+```
+
+GPIO Zero permite controlar componentes conectados a los GPIO de la Raspberry Pi.
+
+---
+
+# 8. Instalar Adafruit Blinka
+
+```bash
+pip install adafruit-blinka
+```
+
+Esta librería permite utilizar módulos de CircuitPython, como `board`, en la Raspberry Pi.
+
+---
+
+# 9. Instalar la librería del DHT11
+
+```bash
+pip install adafruit-circuitpython-dht
+```
+
+También instalar el paquete necesario del sistema:
+
+```bash
+sudo apt install -y libgpiod2
+```
+
+---
+
+# 10. Instalar todas las librerías Python juntas
+
+En caso de querer realizar la instalación de una sola vez:
+
+```bash
+pip install flask gpiozero adafruit-blinka adafruit-circuitpython-dht
+```
+
+Y:
+
+```bash
+sudo apt install -y libgpiod2
+```
+
+---
+
+# 11. Comprobar las librerías
+
+Para comprobar Flask:
+
+```bash
+python3 -c "import flask; print('Flask OK')"
+```
+
+Para GPIO Zero:
+
+```bash
+python3 -c "import gpiozero; print('GPIO Zero OK')"
+```
+
+Para Adafruit Blinka:
+
+```bash
+python3 -c "import board; print('Blinka OK')"
+```
+
+Para el DHT11:
+
+```bash
+python3 -c "import adafruit_dht; print('DHT11 OK')"
+```
+
+Si todos muestran `OK`, las librerías principales están instaladas correctamente.
+
+---
+
+# ▶️ Ejecutar el sistema
+
+Con el entorno virtual activado:
 
 ```bash
 python3 app.py
 ```
 
-El servidor Flask se ejecutará en el puerto `5000`.
-
----
-
-## 3. Acceder desde otro dispositivo
-
-Si la Raspberry Pi y el dispositivo utilizado están conectados a la misma red Wi-Fi, acceder desde un navegador mediante:
+Si Flask inicia correctamente, aparecerá una dirección similar a:
 
 ```text
-http://IP_DE_LA_RASPBERRY_PI:5000
+http://127.0.0.1:5000
 ```
 
-Para conocer la dirección IP:
+Para acceder desde otra computadora conectada a la misma red, obtener la dirección IP de la Raspberry Pi:
 
 ```bash
 hostname -I
@@ -529,52 +390,190 @@ hostname -I
 Por ejemplo:
 
 ```text
-http://192.168.1.50:5000
+192.168.1.100
+```
+
+Desde el navegador se puede acceder utilizando:
+
+```text
+http://192.168.1.100:5000
+```
+
+reemplazando la IP por la dirección correspondiente de la Raspberry Pi.
+
+---
+
+# 🔄 Actualizar el proyecto desde GitHub
+
+Si ya se tiene el proyecto instalado y se realizaron cambios en GitHub:
+
+Entrar a la carpeta:
+
+```bash
+cd Proyecto
+```
+
+Activar el entorno virtual:
+
+```bash
+source venv/bin/activate
+```
+
+Actualizar el proyecto:
+
+```bash
+git pull
+```
+
+Luego ejecutar nuevamente:
+
+```bash
+python3 app.py
 ```
 
 ---
 
-# 🔒 Seguridad
+# 🔐 Seguridad
 
-El sistema implementa mecanismos básicos de seguridad.
+El sistema requiere autenticación para acceder a los entornos.
 
-### Autenticación
+Las contraseñas de los usuarios no se almacenan directamente en texto plano. Se utiliza:
 
-El acceso al panel requiere iniciar sesión.
+```python
+generate_password_hash()
+```
 
-### Sesiones
+para generar un hash seguro.
 
-Las rutas encargadas del control físico verifican que el usuario tenga una sesión válida.
+Para verificar las contraseñas se utiliza:
 
-Si el usuario no está autenticado, la solicitud es rechazada.
+```python
+check_password_hash()
+```
 
-### Contraseñas
+También se utilizan sesiones de Flask para controlar el acceso de los usuarios.
 
-Las contraseñas se almacenan mediante **hashing seguro utilizando `werkzeug.security`**.
+---
+
+# 🌐 Funcionamiento del sistema
+
+El funcionamiento general es:
+
+```text
+                 ┌──────────────────┐
+                 │   Navegador Web   │
+                 └────────┬─────────┘
+                          │
+                          ▼
+                 ┌──────────────────┐
+                 │      Flask       │
+                 │     Python       │
+                 └────────┬─────────┘
+                          │
+             ┌────────────┼────────────┐
+             │            │            │
+             ▼            ▼            ▼
+        ┌─────────┐   ┌─────────┐  ┌─────────┐
+        │ SQLite  │   │   GPIO  │  │ Cámara  │
+        └─────────┘   └────┬────┘  └─────────┘
+                           │
+             ┌─────────────┼─────────────┐
+             │             │             │
+             ▼             ▼             ▼
+           DHT11          LED          Relay
+                                         │
+                                         ▼
+                                      X-28 S22
+```
+
+---
+
+# 🏠 Entornos
+
+## Casa
+
+Permite controlar los dispositivos configurados para el entorno doméstico, como:
+
+* Iluminación
+* Alarma
+* Temperatura
+* Humedad
+* Cámara
+
+---
+
+## 🚗 Garage
+
+Permite controlar:
+
+* Iluminación
+* Alarma
+* Temperatura
+* Humedad
+* Cámara
+* Portón mediante servo SG90
+
+---
+
+## 🏫 Escuela
+
+Permite controlar los dispositivos disponibles para el entorno educativo:
+
+* Iluminación
+* Alarma
+* Temperatura
+* Humedad
+* Cámara
+
+---
+
+## 🏢 Oficina
+
+Permite controlar los dispositivos disponibles para el entorno laboral:
+
+* Iluminación
+* Alarma
+* Temperatura
+* Humedad
+* Cámara
 
 ---
 
 # 🎯 Objetivo del proyecto
 
-El objetivo del proyecto es desarrollar un sistema de **domótica y control centralizado** utilizando una Raspberry Pi como servidor y controlador físico.
+El objetivo es desarrollar un sistema centralizado que permita **administrar y automatizar diferentes entornos mediante una interfaz web**, utilizando una Raspberry Pi como dispositivo de control.
 
-El proyecto integra:
+El proyecto busca integrar:
 
-* 🌐 Desarrollo web
-* 🐍 Python
-* 🔌 Electrónica
-* 📡 Comunicación mediante red
-* 🗄️ Bases de datos
-* 🔐 Autenticación
-* 🌡️ Sensores
-* 🚨 Sistemas de seguridad
-* 🚪 Automatización
-* 📷 Videovigilancia
-
-Todo dentro de un único sistema accesible desde un navegador web.
+* Programación
+* Desarrollo web
+* Bases de datos
+* Electrónica
+* Automatización
+* Sensores
+* Actuadores
+* Internet de las cosas (IoT)
 
 ---
 
-# 📌 Estado del proyecto
+# 🚀 Estado del proyecto
 
-👍**FINALIZADO**
+Actualmente el sistema cuenta con:
+
+* ✅ Registro de usuarios
+* ✅ Inicio de sesión
+* ✅ Base de datos SQLite
+* ✅ Sistema de sesiones
+* ✅ Entorno Casa
+* ✅ Entorno Garage
+* ✅ Entorno Escuela
+* ✅ Entorno Oficina
+* ✅ Control de iluminación
+* ✅ Sistema de alarma
+* ✅ Sensor DHT11
+* ✅ Temperatura
+* ✅ Humedad
+* ✅ Cámara
+* ✅ Servo SG90 para Garage
+* ✅ Integración con Raspberry Pi
+* ✅ Control mediante navegador web
